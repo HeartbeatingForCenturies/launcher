@@ -227,8 +227,8 @@ namespace updater
 
 	bool file_updater::does_iw4x_require_update(iw4x_update_state& update_state) const
 	{
-		std::filesystem::path iw4x_basegame_directory(this->base_);
-		std::filesystem::path revision_file_path = iw4x_basegame_directory / IW4X_VERSION_FILE;
+		const std::filesystem::path iw4x_basegame_directory(this->base_);
+		const std::filesystem::path revision_file_path = iw4x_basegame_directory / IW4X_VERSION_FILE;
 
 		bool every_update_required = false;
 		std::string data{};
@@ -253,7 +253,7 @@ namespace updater
 		if (every_update_required || doc.HasMember("rawfile_version"))
 		{
 			utils::logger::write("Fetching iw4x-rawfiles tag from github...");
-			std::optional<std::string> rawfiles_tag = get_release_tag("https://api.github.com/repos/XLabsProject/iw4x-rawfiles/releases/latest");
+			const auto rawfiles_tag = get_release_tag("https://api.github.com/repos/XLabsProject/iw4x-rawfiles/releases/latest");
 			if (rawfiles_tag.has_value())
 			{
 				update_state.rawfile_requires_update = every_update_required || doc["rawfile_version"].GetString() != rawfiles_tag.value();
@@ -267,9 +267,9 @@ namespace updater
 		return every_update_required || update_state.rawfile_requires_update;
 	}
 
-	std::optional<std::string> file_updater::get_release_tag(const std::string& release_url) const
+	std::optional<std::string> file_updater::get_release_tag(const std::string& release_url)
 	{
-		std::optional<std::string> iw4x_release_info = utils::http::get_data(release_url);
+		const auto iw4x_release_info = utils::http::get_data(release_url);
 		if (iw4x_release_info.has_value())
 		{
 			rapidjson::Document release_json{};
@@ -278,18 +278,18 @@ namespace updater
 
 			if (release_json.HasMember("tag_name"))
 			{
-				auto tag_name = release_json["tag_name"].GetString();
-				return tag_name;
+				const auto tag_name = release_json["tag_name"].GetString();
+				return {tag_name};
 			}
 		}
 
 		return {};
 	}
 
-	void file_updater::create_iw4x_version_file(std::string rawfile_version) const
+	void file_updater::create_iw4x_version_file(const std::string& rawfile_version) const
 	{
 		utils::logger::write("Creating iw4x version file in {}: rawfiles are {}", this->base_, rawfile_version);
-		std::filesystem::path iw4x_basegame_directory(this->base_);
+		const std::filesystem::path iw4x_basegame_directory(this->base_);
 
 		rapidjson::Document doc{};
 
@@ -305,7 +305,7 @@ namespace updater
 
 		const std::string json(buffer.GetString());
 
-		std::filesystem::path revision_file_path = iw4x_basegame_directory / IW4X_VERSION_FILE;
+		const auto revision_file_path = iw4x_basegame_directory / IW4X_VERSION_FILE;
 
 		if (utils::io::write_file(revision_file_path.string(), json))
 		{
