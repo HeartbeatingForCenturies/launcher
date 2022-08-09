@@ -11,7 +11,7 @@ namespace updater
 
 		void run() const;
 
-		std::vector<file_info> get_outdated_files(const std::vector<file_info>& files) const;
+		[[nodiscard]] std::vector<file_info> get_outdated_files(const std::vector<file_info>& files) const;
 
 		void update_host_binary(const std::vector<file_info>& outdated_files) const;
 
@@ -34,16 +34,16 @@ namespace updater
 
 		void update_file(const file_info& file, bool iw4x_files = false) const;
 
-		bool is_outdated_file(const file_info& file) const;
-		std::string get_drive_filename(const file_info& file) const;
+		[[nodiscard]] bool is_outdated_file(const file_info& file) const;
+		[[nodiscard]] std::string get_drive_filename(const file_info& file) const;
 
 		void move_current_process_file() const;
 		void restore_current_process_file() const;
 		void delete_old_process_file() const;
 
 		// IW4X-specific
-		void create_iw4x_version_file(std::string rawfile_version) const;
-		std::optional<std::string> get_release_tag(const std::string& release_url) const;
+		void create_iw4x_version_file(const std::string& rawfile_version) const;
+		static std::optional<std::string> get_release_tag(const std::string& release_url);
 		bool does_iw4x_require_update(iw4x_update_state& update_state) const;
 		void deploy_iw4x_rawfiles() const;
 

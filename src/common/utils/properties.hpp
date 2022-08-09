@@ -6,6 +6,8 @@
 
 namespace utils::properties
 {
+	std::string get_appdata_path();
+
 	std::unique_lock<named_mutex> lock();
 
 	std::optional<std::string> load(const std::string& name);

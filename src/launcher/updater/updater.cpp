@@ -6,6 +6,8 @@
 
 #include <version.hpp>
 
+#include <utils/properties.hpp>
+
 namespace updater
 {
 	namespace
@@ -41,6 +43,23 @@ namespace updater
 		const file_updater file_updater{updater_ui, base, self_file};
 
 		file_updater.run();
+
+		std::this_thread::sleep_for(1s);
+	}
+
+	void update_iw4x()
+	{
+		const auto mw2_install = utils::properties::load("mw2-install");
+		if (!mw2_install)
+		{
+			return;
+		}
+
+		const auto base = mw2_install.value() + "\\";
+
+		updater_ui updater_ui{};
+		const file_updater file_updater{updater_ui, base, ""};
+		file_updater.update_iw4x_if_necessary();
 
 		std::this_thread::sleep_for(1s);
 	}

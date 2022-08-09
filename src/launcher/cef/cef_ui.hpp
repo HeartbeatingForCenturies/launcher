@@ -21,8 +21,8 @@ namespace cef
 
 		int run_process() const;
 		void create(const std::string& folder, const std::string& file);
-		void work_once();
-		void work();
+		static void work_once();
+		static void work();
 
 		void add_command(std::string command, command_handler handler);
 

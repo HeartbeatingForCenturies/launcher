@@ -33,7 +33,7 @@ namespace cef
 			});
 
 			if (!utils::nt::library::load("libcef.dll"s) //
-				|| !utils::nt::library::delay_load("libcef.dll"))
+				|| !utils::nt::library::delay_load("libcef.dll"s))
 			{
 				throw std::runtime_error("Failed to load CEF");
 			}
