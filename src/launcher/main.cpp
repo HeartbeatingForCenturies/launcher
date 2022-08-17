@@ -213,10 +213,11 @@ namespace
 
 			updater::update_iw4x();
 
+			SetEnvironmentVariableA("XLABS_MW2_INSTALL", mw2_install->data());
+
 			// Until MP changes it way of loading this is the only way
 			if (arg == "mw2-sp"s)
 			{
-				SetEnvironmentVariableA("XLABS_MW2_INSTALL", mw2_install->data());
 				const auto iw4x_sp_exe = utils::properties::get_appdata_path() + "data/iw4x/iw4x-sp.exe";
 				utils::nt::launch_process(iw4x_sp_exe, mapped_arg->second);
 			}
