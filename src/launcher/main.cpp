@@ -218,7 +218,7 @@ namespace
 			// Until MP changes it way of loading this is the only way
 			if (arg == "mw2-sp"s)
 			{
-				const auto iw4x_sp_exe = utils::properties::get_appdata_path() / "data/iw4x/iw4x-sp.exe";
+				const auto iw4x_sp_exe = utils::properties::get_appdata_path() / "data" / "iw4x" / "iw4x-sp.exe";
 				utils::nt::launch_process(iw4x_sp_exe, mapped_arg->second);
 			}
 			else
