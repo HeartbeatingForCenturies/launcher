@@ -25,7 +25,7 @@ namespace
 	void set_working_directory()
 	{
 		const auto appdata = utils::properties::get_appdata_path();
-		SetCurrentDirectoryA(appdata.data());
+		std::filesystem::current_path(appdata);
 	}
 
 	void enable_dpi_awareness()
@@ -92,7 +92,7 @@ namespace
 		}).detach();
 	}
 
-	int run_subprocess(const utils::nt::library& process, const std::string& path)
+	int run_subprocess(const utils::nt::library& process, const std::filesystem::path& path)
 	{
 		const cef::cef_ui cef_ui{process, path};
 		return cef_ui.run_process();
@@ -135,7 +135,7 @@ namespace
 
 			SetEnvironmentVariableA("XLABS_AW_INSTALL", aw_install->data());
 
-			const auto s1x_exe = utils::properties::get_appdata_path() + "data/s1x/s1x.exe";
+			const auto s1x_exe = utils::properties::get_appdata_path() / "data" / "s1x" / "s1x.exe";
 			utils::nt::launch_process(s1x_exe, mapped_arg->second);
 
 			cef_ui.close_browser();
@@ -174,7 +174,7 @@ namespace
 
 			SetEnvironmentVariableA("XLABS_GHOSTS_INSTALL", ghosts_install->data());
 
-			const auto iw6x_exe = utils::properties::get_appdata_path() + "data/iw6x/iw6x.exe";
+			const auto iw6x_exe = utils::properties::get_appdata_path() / "data" / "iw6x" / "iw6x.exe";
 			utils::nt::launch_process(iw6x_exe, mapped_arg->second);
 
 			cef_ui.close_browser();
@@ -218,14 +218,14 @@ namespace
 			// Until MP changes it way of loading this is the only way
 			if (arg == "mw2-sp"s)
 			{
-				const auto iw4x_sp_exe = utils::properties::get_appdata_path() + "data/iw4x/iw4x-sp.exe";
+				const auto iw4x_sp_exe = utils::properties::get_appdata_path() / "data/iw4x/iw4x-sp.exe";
 				utils::nt::launch_process(iw4x_sp_exe, mapped_arg->second);
 			}
 			else
 			{
 				const auto iw4x_exe = mw2_install.value() + "\\iw4x.exe";
 				const auto iw4x_dll = mw2_install.value() + "\\iw4x.dll";
-				const auto search_path = utils::properties::get_appdata_path() + "data/iw4x";
+				const auto search_path = utils::properties::get_appdata_path() / "data" / "iw4x";
 
 				utils::io::remove_file(iw4x_dll);
 				utils::nt::update_dll_search_path(search_path);
@@ -332,12 +332,12 @@ namespace
 		});
 	}
 
-	void show_window(const utils::nt::library& process, const std::string& path)
+	void show_window(const utils::nt::library& process, const std::filesystem::path& path)
 	{
 		cef::cef_ui cef_ui{process, path};
 		add_commands(cef_ui);
-		cef_ui.create(path + "data/launcher-ui", "main.html");
-		cef_ui.work();
+		cef_ui.create(path / "data" / "launcher-ui", "main.html");
+		cef::cef_ui::work();
 	}
 }
 

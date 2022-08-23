@@ -17,7 +17,7 @@ namespace utils::com
 		public:
 			_()
 			{
-				if(FAILED(CoInitialize(nullptr)))
+				if (FAILED(CoInitialize(nullptr)))
 				{
 					throw std::runtime_error("Failed to initialize the component object model");
 				}
@@ -33,24 +33,24 @@ namespace utils::com
 	bool select_folder(std::string& out_folder, const std::string& title, const std::string& selected_folder)
 	{
 		CComPtr<IFileOpenDialog> file_dialog{};
-		if(FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&file_dialog))))
+		if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&file_dialog))))
 		{
 			throw std::runtime_error("Failed to create co instance");
 		}
 
 		DWORD dw_options;
-		if(FAILED(file_dialog->GetOptions(&dw_options)))
+		if (FAILED(file_dialog->GetOptions(&dw_options)))
 		{
 			throw std::runtime_error("Failed to get options");
 		}
 
-		if(FAILED(file_dialog->SetOptions(dw_options | FOS_PICKFOLDERS)))
+		if (FAILED(file_dialog->SetOptions(dw_options | FOS_PICKFOLDERS)))
 		{
 			throw std::runtime_error("Failed to set options");
 		}
 
 		std::wstring wide_title(title.begin(), title.end());
-		if(FAILED(file_dialog->SetTitle(wide_title.data())))
+		if (FAILED(file_dialog->SetTitle(wide_title.data())))
 		{
 			throw std::runtime_error("Failed to set title");
 		}
@@ -69,7 +69,7 @@ namespace utils::com
 			}
 
 			IShellItem* shell_item = nullptr;
-			if(FAILED(SHCreateItemFromParsingName(wide_selected_folder.data(), NULL, IID_PPV_ARGS(&shell_item))))
+			if (FAILED(SHCreateItemFromParsingName(wide_selected_folder.data(), NULL, IID_PPV_ARGS(&shell_item))))
 			{
 				throw std::runtime_error("Failed to create item from parsing name");
 			}
@@ -81,7 +81,7 @@ namespace utils::com
 		}
 
 		const auto result = file_dialog->Show(nullptr);
-		if(result == HRESULT_FROM_WIN32(ERROR_CANCELLED))
+		if (result == HRESULT_FROM_WIN32(ERROR_CANCELLED))
 		{
 			return false;
 		}
@@ -92,13 +92,13 @@ namespace utils::com
 		}
 
 		CComPtr<IShellItem> result_item{};
-		if(FAILED(file_dialog->GetResult(&result_item)))
+		if (FAILED(file_dialog->GetResult(&result_item)))
 		{
 			throw std::runtime_error("Failed to get result");
 		}
 
 		PWSTR raw_path = nullptr;
-		if(FAILED(result_item->GetDisplayName(SIGDN_FILESYSPATH, &raw_path)))
+		if (FAILED(result_item->GetDisplayName(SIGDN_FILESYSPATH, &raw_path)))
 		{
 			throw std::runtime_error("Failed to get path display name");
 		}
@@ -117,7 +117,7 @@ namespace utils::com
 	CComPtr<IProgressDialog> create_progress_dialog()
 	{
 		CComPtr<IProgressDialog> progress_dialog{};
-		if(FAILED(CoCreateInstance(CLSID_ProgressDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&progress_dialog))))
+		if (FAILED(CoCreateInstance(CLSID_ProgressDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&progress_dialog))))
 		{
 			throw std::runtime_error("Failed to create co instance");
 		}

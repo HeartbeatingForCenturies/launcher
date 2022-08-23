@@ -7,7 +7,7 @@ namespace updater
 	class file_updater
 	{
 	public:
-		file_updater(progress_listener& listener, std::string base, std::string process_file);
+		file_updater(progress_listener& listener, std::filesystem::path base, std::filesystem::path process_file);
 
 		void run() const;
 
@@ -28,14 +28,14 @@ namespace updater
 
 		progress_listener& listener_;
 
-		std::string base_;
-		std::string process_file_;
-		std::string dead_process_file_;
+		std::filesystem::path base_;
+		std::filesystem::path process_file_;
+		std::filesystem::path dead_process_file_;
 
 		void update_file(const file_info& file, bool iw4x_files = false) const;
 
 		[[nodiscard]] bool is_outdated_file(const file_info& file) const;
-		[[nodiscard]] std::string get_drive_filename(const file_info& file) const;
+		[[nodiscard]] std::filesystem::path get_drive_filename(const file_info& file) const;
 
 		void move_current_process_file() const;
 		void restore_current_process_file() const;
