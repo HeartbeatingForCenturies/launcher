@@ -221,7 +221,7 @@ namespace utils::nt
 
 	std::filesystem::path library::get_dll_directory()
 	{
-		wchar_t directory[MAX_PATH] = { 0 };
+		wchar_t directory[MAX_PATH] = {0};
 		if (!GetDllDirectoryW(MAX_PATH, directory))
 		{
 			return {};
