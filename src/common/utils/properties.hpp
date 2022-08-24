@@ -3,10 +3,11 @@
 #include "named_mutex.hpp"
 #include <mutex>
 #include <optional>
+#include <filesystem>
 
 namespace utils::properties
 {
-	std::string get_appdata_path();
+	std::filesystem::path get_appdata_path();
 
 	std::unique_lock<named_mutex> lock();
 
