@@ -3,10 +3,12 @@
 #include "updater/updater.hpp"
 
 #include <utils/com.hpp>
-#include <utils/string.hpp>
+#include <utils/flags.hpp>
 #include <utils/named_mutex.hpp>
 #include <utils/exit_callback.hpp>
 #include <utils/properties.hpp>
+#include <utils/io.hpp>
+
 #include <updater/file_updater.hpp>
 #include <updater/updater_ui.hpp>
 
@@ -20,26 +22,10 @@ namespace
 		return barrier.compare_exchange_strong(expected, true);
 	}
 
-	std::string get_appdata_path()
-	{
-		PWSTR path;
-		if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path)))
-		{
-			throw std::runtime_error("Failed to read APPDATA path!");
-		}
-
-		auto _ = gsl::finally([&path]()
-		{
-			CoTaskMemFree(path);
-		});
-
-		return utils::string::convert(path) + "/xlabs/";
-	}
-
 	void set_working_directory()
 	{
-		const auto appdata = get_appdata_path();
-		SetCurrentDirectoryA(appdata.data());
+		const auto appdata = utils::properties::get_appdata_path();
+		std::filesystem::current_path(appdata);
 	}
 
 	void enable_dpi_awareness()
@@ -90,7 +76,7 @@ namespace
 
 	bool is_dedi()
 	{
-		return !is_subprocess() && (strstr(GetCommandLineA(), "-dedicated") || strstr(GetCommandLineA(), "-update"));
+		return !is_subprocess() && (utils::flags::has_flag("dedicated") || utils::flags::has_flag("update"));
 	}
 
 	void run_watchdog()
@@ -106,7 +92,7 @@ namespace
 		}).detach();
 	}
 
-	int run_subprocess(const utils::nt::library& process, const std::string& path)
+	int run_subprocess(const utils::nt::library& process, const std::filesystem::path& path)
 	{
 		const cef::cef_ui cef_ui{process, path};
 		return cef_ui.run_process();
@@ -149,7 +135,7 @@ namespace
 
 			SetEnvironmentVariableA("XLABS_AW_INSTALL", aw_install->data());
 
-			const auto s1x_exe = get_appdata_path() + "data/s1x/s1x.exe";
+			const auto s1x_exe = utils::properties::get_appdata_path() / "data" / "s1x" / "s1x.exe";
 			utils::nt::launch_process(s1x_exe, mapped_arg->second);
 
 			cef_ui.close_browser();
@@ -188,7 +174,7 @@ namespace
 
 			SetEnvironmentVariableA("XLABS_GHOSTS_INSTALL", ghosts_install->data());
 
-			const auto iw6x_exe = get_appdata_path() + "data/iw6x/iw6x.exe";
+			const auto iw6x_exe = utils::properties::get_appdata_path() / "data" / "iw6x" / "iw6x.exe";
 			utils::nt::launch_process(iw6x_exe, mapped_arg->second);
 
 			cef_ui.close_browser();
@@ -204,6 +190,7 @@ namespace
 			const std::string arg{value.GetString(), value.GetStringLength()};
 
 			static const std::unordered_map<std::string, std::string> arg_mapping = {
+				{"mw2-sp", "-singleplayer"},
 				{"mw2-mp", "-multiplayer"},
 			};
 
@@ -224,16 +211,26 @@ namespace
 				return;
 			}
 
-			// We update iw4x upon launch
-			updater::updater_ui updater_ui{};
-			const updater::file_updater file_updater{ updater_ui, mw2_install.value() + "\\", ""};
-			file_updater.update_iw4x_if_necessary();
+			updater::update_iw4x();
 
-			const auto iw4x_exe = mw2_install.value() + "\\iw4x.exe";
-			const auto dll_path = get_appdata_path() + "data/iw4x";
+			SetEnvironmentVariableA("XLABS_MW2_INSTALL", mw2_install->data());
 
-			utils::nt::update_dll_search_path(dll_path);
-			utils::nt::launch_process(iw4x_exe, mapped_arg->second);
+			// Until MP changes it way of loading this is the only way
+			if (arg == "mw2-sp"s)
+			{
+				const auto iw4x_sp_exe = utils::properties::get_appdata_path() / "data" / "iw4x" / "iw4x-sp.exe";
+				utils::nt::launch_process(iw4x_sp_exe, mapped_arg->second);
+			}
+			else
+			{
+				const auto iw4x_exe = mw2_install.value() + "\\iw4x.exe";
+				const auto iw4x_dll = mw2_install.value() + "\\iw4x.dll";
+				const auto search_path = utils::properties::get_appdata_path() / "data" / "iw4x";
+
+				utils::io::remove_file(iw4x_dll);
+				utils::nt::update_dll_search_path(search_path);
+				utils::nt::launch_process(iw4x_exe, mapped_arg->second);
+			}
 
 			cef_ui.close_browser();
 		});
@@ -335,12 +332,12 @@ namespace
 		});
 	}
 
-	void show_window(const utils::nt::library& process, const std::string& path)
+	void show_window(const utils::nt::library& process, const std::filesystem::path& path)
 	{
 		cef::cef_ui cef_ui{process, path};
 		add_commands(cef_ui);
-		cef_ui.create(path + "data/launcher-ui", "main.html");
-		cef_ui.work();
+		cef_ui.create(path / "data" / "launcher-ui", "main.html");
+		cef::cef_ui::work();
 	}
 }
 
@@ -351,7 +348,7 @@ int CALLBACK WinMain(const HINSTANCE instance, HINSTANCE, LPSTR, int)
 		//set_working_directory();
 
 		const utils::nt::library lib{instance};
-		const auto path = get_appdata_path();
+		const auto path = utils::properties::get_appdata_path();
 
 		if (is_subprocess())
 		{
@@ -364,9 +361,10 @@ int CALLBACK WinMain(const HINSTANCE instance, HINSTANCE, LPSTR, int)
 #if defined(CI_BUILD) && !defined(DEBUG)
 		run_as_singleton();
 
-		if (!strstr(GetCommandLineA(), "-noupdate"))
+		if (!utils::flags::has_flag("noupdate"))
 		{
 			updater::run(path);
+			updater::update_iw4x();
 		}
 #endif
 

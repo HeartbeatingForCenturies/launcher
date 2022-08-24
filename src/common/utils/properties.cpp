@@ -14,25 +14,9 @@ namespace utils::properties
 {
 	namespace
 	{
-		std::string get_appdata_path()
+		const std::filesystem::path get_properties_file()
 		{
-			PWSTR path;
-			if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path)))
-			{
-				throw std::runtime_error("Failed to read APPDATA path!");
-			}
-
-			auto _ = gsl::finally([&path]()
-			{
-				CoTaskMemFree(path);
-			});
-
-			return string::convert(path) + "/xlabs/";
-		}
-
-		const std::string& get_properties_file()
-		{
-			static const auto props = get_appdata_path() + "user/properties.json";
+			static const auto props = get_appdata_path() / "user/properties.json";
 			return props;
 		}
 
@@ -70,6 +54,23 @@ namespace utils::properties
 			const auto& props = get_properties_file();
 			io::write_file(props, json);
 		}
+	}
+
+	std::filesystem::path get_appdata_path()
+	{
+		PWSTR path;
+		if (!SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &path)))
+		{
+			throw std::runtime_error("Failed to read APPDATA path!");
+		}
+
+		auto _ = gsl::finally([&path]()
+		{
+			CoTaskMemFree(path);
+		});
+
+		static auto appdata = std::filesystem::path(path) / "xlabs";
+		return appdata;
 	}
 
 	std::unique_lock<named_mutex> lock()

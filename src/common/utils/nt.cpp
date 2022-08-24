@@ -3,6 +3,8 @@
 #include <delayimp.h>
 #pragma comment(lib, "delayimp.lib")
 
+#include <utils/string.hpp>
+
 #include <gsl/gsl>
 
 namespace utils::nt
@@ -119,33 +121,33 @@ namespace utils::nt
 		return this->module_ != nullptr && this->get_dos_header()->e_magic == IMAGE_DOS_SIGNATURE;
 	}
 
-	std::string library::get_name() const
+	std::wstring library::get_name() const
 	{
-		if (!this->is_valid()) return "";
+		if (!this->is_valid()) return {};
 
 		auto path = this->get_path();
-		const auto pos = path.find_last_of("/\\");
-		if (pos == std::string::npos) return path;
+		const auto pos = path.generic_wstring().find_last_of(L"/\\");
+		if (pos == std::string::npos) return path.generic_wstring();
 
-		return path.substr(pos + 1);
+		return path.generic_wstring().substr(pos + 1);
 	}
 
-	std::string library::get_path() const
+	std::filesystem::path library::get_path() const
 	{
-		if (!this->is_valid()) return "";
+		if (!this->is_valid()) return {};
 
-		char name[MAX_PATH] = {0};
-		GetModuleFileNameA(this->module_, name, sizeof name);
+		wchar_t name[MAX_PATH]{};
+		GetModuleFileNameW(this->module_, name, MAX_PATH);
 
 		return name;
 	}
 
-	std::string library::get_folder() const
+	std::filesystem::path library::get_folder() const
 	{
-		if (!this->is_valid()) return "";
+		if (!this->is_valid()) return {};
 
-		const auto path = std::filesystem::path(this->get_path());
-		return path.parent_path().generic_string();
+		const auto path = this->get_path();
+		return path.parent_path();
 	}
 
 	void library::free()
@@ -212,20 +214,20 @@ namespace utils::nt
 		return nullptr;
 	}
 
-	void library::set_dll_directory(const std::string& directory)
+	void library::set_dll_directory(const std::filesystem::path& directory)
 	{
-		SetDllDirectoryA(directory.data());
+		SetDllDirectoryW(directory.wstring().data());
 	}
 
-	std::string library::get_dll_directory()
+	std::filesystem::path library::get_dll_directory()
 	{
-		char directory[MAX_PATH] = {0};
-		if (!GetDllDirectoryA(sizeof(directory), directory))
+		wchar_t directory[MAX_PATH] = {0};
+		if (!GetDllDirectoryW(MAX_PATH, directory))
 		{
 			return {};
 		}
 
-		return directory;
+		return {directory};
 	}
 
 	bool library::delay_load(const std::string& library)
@@ -259,19 +261,19 @@ namespace utils::nt
 		return std::string(LPSTR(LockResource(handle)), SizeofResource(nullptr, res));
 	}
 
-	void launch_process(const std::string& process, std::string command_line)
+	void launch_process(const std::filesystem::path& process, const std::string& command_line)
 	{
-		STARTUPINFOA startup_info;
+		STARTUPINFOW startup_info;
 		PROCESS_INFORMATION process_info;
 
 		ZeroMemory(&startup_info, sizeof(startup_info));
 		ZeroMemory(&process_info, sizeof(process_info));
 		startup_info.cb = sizeof(startup_info);
 
-		char current_dir[MAX_PATH];
-		GetCurrentDirectoryA(sizeof(current_dir), current_dir);
+		wchar_t current_dir[MAX_PATH];
+		GetCurrentDirectoryW(MAX_PATH, current_dir);
 
-		CreateProcessA(process.data(), command_line.data(), nullptr, nullptr, false, NULL, nullptr, current_dir,
+		CreateProcessW(process.wstring().data(), string::convert(command_line).data(), nullptr, nullptr, false, NULL, nullptr, current_dir,
 		               &startup_info, &process_info);
 
 		if (process_info.hThread && process_info.hThread != INVALID_HANDLE_VALUE) CloseHandle(process_info.hThread);
@@ -281,12 +283,12 @@ namespace utils::nt
 	void relaunch_self(std::string command_line)
 	{
 		const utils::nt::library self;
-		launch_process(self.get_path(), std::move(command_line));
+		launch_process(self.get_path(), command_line);
 	}
 
-	void update_dll_search_path(const std::string& directory)
+	void update_dll_search_path(const std::filesystem::path& directory)
 	{
-		const utils::nt::library self;
+		const library self;
 		self.set_dll_directory(directory);
 	}
 
