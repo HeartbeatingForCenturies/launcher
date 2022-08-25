@@ -1,4 +1,4 @@
-#include "std_include.hpp"
+#include <std_include.hpp>
 
 #include "updater.hpp"
 #include "updater_ui.hpp"
@@ -10,10 +10,7 @@
 #include <utils/logger.hpp>
 #include <utils/compression.hpp>
 
-#include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/writer.h>
-#include <iostream>
 
 #define UPDATE_SERVER "https://master.xlabs.dev/"
 

@@ -1,4 +1,4 @@
-#include "std_include.hpp"
+#include <std_include.hpp>
 
 #include "cef/cef_ui.hpp"
 #include "cef/cef_ui_app.hpp"
@@ -93,8 +93,7 @@ namespace cef
 		CefString(&settings.locale) = "en-US";
 
 		this->initialized_ = CefInitialize(args, settings, new cef_ui_app(), nullptr);
-		CefRegisterSchemeHandlerFactory("http", "xlabs",
-		                                new cef_ui_scheme_handler_factory(folder, this->command_handlers_));
+		CefRegisterSchemeHandlerFactory("http", "xlabs", new cef_ui_scheme_handler_factory(folder, this->command_handlers_));
 
 		CefBrowserSettings browser_settings;
 		//browser_settings.windowless_frame_rate = 60;

@@ -14,25 +14,29 @@ namespace utils::properties
 {
 	namespace
 	{
+		typedef rapidjson::GenericDocument<rapidjson::UTF16LE<>> WDocument;
+		typedef rapidjson::GenericValue<rapidjson::UTF16LE<>> WValue;
+		typedef rapidjson::GenericStringBuffer<rapidjson::UTF16LE<>> WStringBuffer;
+
 		const std::filesystem::path get_properties_file()
 		{
-			static const auto props = get_appdata_path() / "user/properties.json";
+			static const auto props = get_appdata_path() / "user" / "properties.json";
 			return props;
 		}
 
-		rapidjson::Document load_properties()
+		WDocument load_properties()
 		{
-			rapidjson::Document default_doc{};
+			WDocument default_doc{};
 			default_doc.SetObject();
 
-			std::string data{};
+			std::wstring data;
 			const auto& props = get_properties_file();
 			if (!io::read_file(props, &data))
 			{
 				return default_doc;
 			}
 
-			rapidjson::Document doc{};
+			WDocument doc{};
 			const rapidjson::ParseResult result = doc.Parse(data);
 			if (!result || !doc.IsObject())
 			{
@@ -42,14 +46,14 @@ namespace utils::properties
 			return doc;
 		}
 
-		void store_properties(const rapidjson::Document& doc)
+		void store_properties(const WDocument& doc)
 		{
-			rapidjson::StringBuffer buffer{};
-			rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<>>
+			WStringBuffer buffer{};
+			rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16LE<>>
 				writer(buffer);
 			doc.Accept(writer);
 
-			const std::string json(buffer.GetString(), buffer.GetLength());
+			const std::wstring json(buffer.GetString(), buffer.GetLength());
 
 			const auto& props = get_properties_file();
 			io::write_file(props, json);
@@ -80,7 +84,7 @@ namespace utils::properties
 		return lock;
 	}
 
-	std::optional<std::string> load(const std::string& name)
+	std::optional<std::wstring> load(const std::wstring& name)
 	{
 		const auto _ = lock();
 		const auto doc = load_properties();
@@ -96,10 +100,10 @@ namespace utils::properties
 			return {};
 		}
 
-		return {std::string{value.GetString(), value.GetStringLength()}};
+		return {std::wstring{value.GetString(), value.GetStringLength()}};
 	}
 
-	void store(const std::string& name, const std::string& value)
+	void store(const std::wstring& name, const std::wstring& value)
 	{
 		const auto _ = lock();
 		auto doc = load_properties();
@@ -109,10 +113,10 @@ namespace utils::properties
 			doc.RemoveMember(name);
 		}
 
-		rapidjson::Value key{};
+		WValue key{};
 		key.SetString(name, doc.GetAllocator());
 
-		rapidjson::Value member{};
+		WValue member{};
 		member.SetString(value, doc.GetAllocator());
 
 		doc.AddMember(key, member, doc.GetAllocator());

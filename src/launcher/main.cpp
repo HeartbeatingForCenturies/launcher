@@ -8,9 +8,7 @@
 #include <utils/exit_callback.hpp>
 #include <utils/properties.hpp>
 #include <utils/io.hpp>
-
-#include <updater/file_updater.hpp>
-#include <updater/updater_ui.hpp>
+#include <utils/string.hpp>
 
 namespace
 {
@@ -122,7 +120,7 @@ namespace
 				return;
 			}
 
-			const auto aw_install = utils::properties::load("aw-install");
+			const auto aw_install = utils::properties::load(L"aw-install");
 			if (!aw_install)
 			{
 				return;
@@ -133,7 +131,7 @@ namespace
 				return;
 			}
 
-			SetEnvironmentVariableA("XLABS_AW_INSTALL", aw_install->data());
+			SetEnvironmentVariableW(L"XLABS_AW_INSTALL", aw_install->data());
 
 			const auto s1x_exe = utils::properties::get_appdata_path() / "data" / "s1x" / "s1x.exe";
 			utils::nt::launch_process(s1x_exe, mapped_arg->second);
@@ -161,7 +159,7 @@ namespace
 				return;
 			}
 
-			const auto ghosts_install = utils::properties::load("ghosts-install");
+			const auto ghosts_install = utils::properties::load(L"ghosts-install");
 			if (!ghosts_install)
 			{
 				return;
@@ -172,7 +170,7 @@ namespace
 				return;
 			}
 
-			SetEnvironmentVariableA("XLABS_GHOSTS_INSTALL", ghosts_install->data());
+			SetEnvironmentVariableW(L"XLABS_GHOSTS_INSTALL", ghosts_install->data());
 
 			const auto iw6x_exe = utils::properties::get_appdata_path() / "data" / "iw6x" / "iw6x.exe";
 			utils::nt::launch_process(iw6x_exe, mapped_arg->second);
@@ -200,7 +198,7 @@ namespace
 				return;
 			}
 
-			const auto mw2_install = utils::properties::load("mw2-install");
+			const auto mw2_install = utils::properties::load(L"mw2-install");
 			if (!mw2_install)
 			{
 				return;
@@ -213,7 +211,7 @@ namespace
 
 			updater::update_iw4x();
 
-			SetEnvironmentVariableA("XLABS_MW2_INSTALL", mw2_install->data());
+			SetEnvironmentVariableW(L"XLABS_MW2_INSTALL", mw2_install->data());
 
 			// Until MP changes it way of loading this is the only way
 			if (arg == "mw2-sp"s)
@@ -223,8 +221,8 @@ namespace
 			}
 			else
 			{
-				const auto iw4x_exe = mw2_install.value() + "\\iw4x.exe";
-				const auto iw4x_dll = mw2_install.value() + "\\iw4x.dll";
+				const auto iw4x_exe = mw2_install.value() + L"\\iw4x.exe";
+				const auto iw4x_dll = mw2_install.value() + L"\\iw4x.dll";
 				const auto search_path = utils::properties::get_appdata_path() / "data" / "iw4x";
 
 				utils::io::remove_file(iw4x_dll);
@@ -239,10 +237,10 @@ namespace
 		{
 			response.SetNull();
 
-			std::string folder{};
+			std::wstring folder{};
 			if (utils::com::select_folder(folder))
 			{
-				response.SetString(folder, response.GetAllocator());
+				response.SetString(utils::string::convert(folder), response.GetAllocator());
 			}
 		});
 
@@ -275,13 +273,13 @@ namespace
 			}
 
 			const std::string key{value.GetString(), value.GetStringLength()};
-			const auto property = utils::properties::load(key);
+			const auto property = utils::properties::load(utils::string::convert(key));
 			if (!property)
 			{
 				return;
 			}
 
-			response.SetString(*property, response.GetAllocator());
+			response.SetString(utils::string::convert(*property), response.GetAllocator());
 		});
 
 		cef_ui.add_command("set-property", [](const rapidjson::Value& value, auto&)
@@ -303,7 +301,7 @@ namespace
 				const std::string key{i->name.GetString(), i->name.GetStringLength()};
 				const std::string val{i->value.GetString(), i->value.GetStringLength()};
 
-				utils::properties::store(key, val);
+				utils::properties::store(utils::string::convert(key), utils::string::convert(val));
 			}
 		});
 

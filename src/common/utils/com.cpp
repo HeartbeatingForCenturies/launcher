@@ -1,6 +1,5 @@
 #include "com.hpp"
 #include "nt.hpp"
-#include "string.hpp"
 
 #include <stdexcept>
 
@@ -30,7 +29,7 @@ namespace utils::com
 		} __;
 	}
 
-	bool select_folder(std::string& out_folder, const std::string& title, const std::string& selected_folder)
+	bool select_folder(std::wstring& out_folder, const std::wstring& title, const std::wstring& selected_folder)
 	{
 		CComPtr<IFileOpenDialog> file_dialog{};
 		if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&file_dialog))))
@@ -49,8 +48,7 @@ namespace utils::com
 			throw std::runtime_error("Failed to set options");
 		}
 
-		std::wstring wide_title(title.begin(), title.end());
-		if (FAILED(file_dialog->SetTitle(wide_title.data())))
+		if (FAILED(file_dialog->SetTitle(title.data())))
 		{
 			throw std::runtime_error("Failed to set title");
 		}
@@ -59,7 +57,7 @@ namespace utils::com
 		{
 			file_dialog->ClearClientData();
 
-			std::wstring wide_selected_folder(selected_folder.begin(), selected_folder.end());
+			std::wstring wide_selected_folder = selected_folder;
 			for (auto& chr : wide_selected_folder)
 			{
 				if (chr == L'/')
@@ -109,7 +107,7 @@ namespace utils::com
 		});
 
 		const std::wstring result_path = raw_path;
-		out_folder = string::convert(result_path);
+		out_folder = result_path;
 
 		return true;
 	}
