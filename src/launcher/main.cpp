@@ -105,7 +105,7 @@ namespace
 				return;
 			}
 
-			const std::wstring arg{value.GetString(), value.GetStringLength()};
+			const std::wstring arg{value.GetString()};
 
 			static const std::unordered_map<std::wstring, std::string> arg_mapping = {
 				{L"aw-sp", "-singleplayer"},
@@ -146,7 +146,7 @@ namespace
 				return;
 			}
 
-			const std::wstring arg{value.GetString(), value.GetStringLength()};
+			const std::wstring arg{value.GetString()};
 
 			static const std::unordered_map<std::wstring, std::string> arg_mapping = {
 				{L"ghosts-sp", "-singleplayer"},
@@ -185,7 +185,7 @@ namespace
 				return;
 			}
 
-			const std::wstring arg{value.GetString(), value.GetStringLength()};
+			const std::wstring arg{value.GetString()};
 
 			static const std::unordered_map<std::wstring, std::string> arg_mapping = {
 				{L"mw2-sp", "-singleplayer"},
@@ -272,7 +272,7 @@ namespace
 				return;
 			}
 
-			const std::wstring key{value.GetString(), value.GetStringLength()};
+			const std::wstring key{value.GetString()};
 			const auto property = utils::properties::load(key);
 			if (!property)
 			{
@@ -298,8 +298,8 @@ namespace
 					continue;
 				}
 
-				const std::wstring key{i->name.GetString(), i->name.GetStringLength()};
-				const std::wstring val{i->value.GetString(), i->value.GetStringLength()};
+				const std::wstring key{i->name.GetString()};
+				const std::wstring val{i->value.GetString()};
 
 				utils::properties::store(key, val);
 			}
@@ -318,7 +318,7 @@ namespace
 				return;
 			}
 
-			const std::wstring channel{value.GetString(), value.GetStringLength()};
+			const std::wstring channel{value.GetString()};
 			const auto* const command_line = channel == L"main" ? "--xlabs-channel-main" : "--xlabs-channel-develop";
 
 			utils::at_exit([command_line]

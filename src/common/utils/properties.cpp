@@ -124,7 +124,7 @@ namespace utils::properties
 			return {};
 		}
 
-		return {std::wstring{value.GetString(), value.GetStringLength()}};
+		return {std::wstring{value.GetString()}};
 	}
 
 	void store(const std::wstring& name, const std::wstring& value)

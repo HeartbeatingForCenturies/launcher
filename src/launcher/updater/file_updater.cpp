@@ -117,7 +117,7 @@ namespace updater
 		}
 	}
 
-	file_updater::file_updater(progress_listener& listener, const std::filesystem::path base, std::filesystem::path process_file)
+	file_updater::file_updater(progress_listener& listener, std::filesystem::path base, std::filesystem::path process_file)
 		: listener_(listener)
 		, base_(std::move(base))
 		, process_file_(std::move(process_file))
@@ -327,7 +327,7 @@ namespace updater
 			}
 
 			utils::logger::write("Updating iw4x files");
-			update_files(files_to_update, /*iw4x_file=*/true);
+			update_files(files_to_update, true);
 
 			if (update_state.rawfile_requires_update)
 			{

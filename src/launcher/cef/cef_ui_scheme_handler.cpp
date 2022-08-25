@@ -460,7 +460,7 @@ namespace cef
 
 		if (command.IsString())
 		{
-			const std::wstring wide_command_name{command.GetString(), command.GetStringLength()};
+			const std::wstring wide_command_name{command.GetString()};
 			const auto command_name = utils::string::convert(wide_command_name);
 			const auto handler = this->command_handlers_.find(command_name);
 			if (handler != this->command_handlers_.end())
