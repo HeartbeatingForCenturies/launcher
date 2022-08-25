@@ -16,8 +16,8 @@ namespace utils::properties
 {
 	namespace
 	{
-		typedef rapidjson::GenericDocument<rapidjson::UTF16<>> WDocument;
-		typedef rapidjson::GenericValue<rapidjson::UTF16<>> WValue;
+		typedef rapidjson::GenericDocument<rapidjson::UTF16LE<>> WDocument;
+		typedef rapidjson::GenericValue<rapidjson::UTF16LE<>> WValue;
 
 		typedef rapidjson::EncodedOutputStream<rapidjson::UTF16LE<>, rapidjson::FileWriteStream> OutputStream;
 		typedef rapidjson::EncodedInputStream<rapidjson::UTF16LE<>, rapidjson::FileReadStream> InputStream;

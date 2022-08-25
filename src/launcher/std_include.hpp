@@ -32,9 +32,9 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
 
-typedef rapidjson::GenericDocument<rapidjson::UTF16<>> WDocument;
-typedef rapidjson::GenericValue<rapidjson::UTF16<>> WValue;
-typedef rapidjson::GenericStringBuffer<rapidjson::UTF16<>> WStringBuffer;
+typedef rapidjson::GenericDocument<rapidjson::UTF16LE<>> WDocument;
+typedef rapidjson::GenericValue<rapidjson::UTF16LE<>> WValue;
+typedef rapidjson::GenericStringBuffer<rapidjson::UTF16LE<>> WStringBuffer;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)

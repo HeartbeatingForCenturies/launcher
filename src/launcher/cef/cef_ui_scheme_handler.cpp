@@ -5,6 +5,9 @@
 #include <utils/io.hpp>
 #include <utils/string.hpp>
 
+#define CEF_COMMAND L"command"
+#define CEF_DATA L"data"
+
 namespace cef
 {
 	namespace
@@ -445,18 +448,20 @@ namespace cef
 		json.resize(element->GetBytesCount());
 		element->GetBytes(json.size(), json.data());
 
-		rapidjson::Document doc{};
-		doc.Parse(json.data(), json.size());
+		WDocument doc{};
+		const auto wide_json = utils::string::convert(json);
+		doc.Parse(wide_json.data(), wide_json.size());
 
-		const auto& command = doc["command"];
-		const auto& data = doc["data"];
+		const auto& command = doc[CEF_COMMAND];
+		const auto& data = doc[CEF_DATA];
 
 		WDocument response{};
 		response.SetObject();
 
 		if (command.IsString())
 		{
-			const std::string command_name{command.GetString(), command.GetStringLength()};
+			const std::wstring wide_command_name{command.GetString(), command.GetStringLength()};
+			const auto command_name = utils::string::convert(wide_command_name);
 			const auto handler = this->command_handlers_.find(command_name);
 			if (handler != this->command_handlers_.end())
 			{

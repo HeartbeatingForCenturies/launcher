@@ -98,20 +98,20 @@ namespace
 
 	void add_commands(cef::cef_ui& cef_ui)
 	{
-		cef_ui.add_command("launch-aw", [&cef_ui](const rapidjson::Value& value, auto&)
+		cef_ui.add_command("launch-aw", [&cef_ui](const WValue& value, auto&)
 		{
 			if (!value.IsString())
 			{
 				return;
 			}
 
-			const std::string arg{value.GetString(), value.GetStringLength()};
+			const std::wstring arg{value.GetString(), value.GetStringLength()};
 
-			static const std::unordered_map<std::string, std::string> arg_mapping = {
-				{"aw-sp", "-singleplayer"},
-				{"aw-mp", "-multiplayer"},
-				{"aw-zm", "-zombies"},
-				{"aw-survival", "-survival"},
+			static const std::unordered_map<std::wstring, std::string> arg_mapping = {
+				{L"aw-sp", "-singleplayer"},
+				{L"aw-mp", "-multiplayer"},
+				{L"aw-zm", "-zombies"},
+				{L"aw-survival", "-survival"},
 			};
 
 			const auto mapped_arg = arg_mapping.find(arg);
@@ -139,18 +139,18 @@ namespace
 			cef_ui.close_browser();
 		});
 
-		cef_ui.add_command("launch-ghosts", [&cef_ui](const rapidjson::Value& value, auto&)
+		cef_ui.add_command("launch-ghosts", [&cef_ui](const WValue& value, auto&)
 		{
 			if (!value.IsString())
 			{
 				return;
 			}
 
-			const std::string arg{value.GetString(), value.GetStringLength()};
+			const std::wstring arg{value.GetString(), value.GetStringLength()};
 
-			static const std::unordered_map<std::string, std::string> arg_mapping = {
-				{"ghosts-sp", "-singleplayer"},
-				{"ghosts-mp", "-multiplayer"},
+			static const std::unordered_map<std::wstring, std::string> arg_mapping = {
+				{L"ghosts-sp", "-singleplayer"},
+				{L"ghosts-mp", "-multiplayer"},
 			};
 
 			const auto mapped_arg = arg_mapping.find(arg);
@@ -178,18 +178,18 @@ namespace
 			cef_ui.close_browser();
 		});
 
-		cef_ui.add_command("launch-mw2", [&cef_ui](const rapidjson::Value& value, auto&)
+		cef_ui.add_command("launch-mw2", [&cef_ui](const WValue& value, auto&)
 		{
 			if (!value.IsString())
 			{
 				return;
 			}
 
-			const std::string arg{value.GetString(), value.GetStringLength()};
+			const std::wstring arg{value.GetString(), value.GetStringLength()};
 
-			static const std::unordered_map<std::string, std::string> arg_mapping = {
-				{"mw2-sp", "-singleplayer"},
-				{"mw2-mp", "-multiplayer"},
+			static const std::unordered_map<std::wstring, std::string> arg_mapping = {
+				{L"mw2-sp", "-singleplayer"},
+				{L"mw2-mp", "-multiplayer"},
 			};
 
 			const auto mapped_arg = arg_mapping.find(arg);
@@ -214,7 +214,7 @@ namespace
 			SetEnvironmentVariableW(L"XLABS_MW2_INSTALL", mw2_install->data());
 
 			// Until MP changes it way of loading this is the only way
-			if (arg == "mw2-sp"s)
+			if (arg == L"mw2-sp")
 			{
 				const auto iw4x_sp_exe = utils::properties::get_appdata_path() / "data" / "iw4x" / "iw4x-sp.exe";
 				utils::nt::launch_process(iw4x_sp_exe, mapped_arg->second);
@@ -263,7 +263,7 @@ namespace
 			PostMessageA(window, WM_DELAYEDDPICHANGE, 0, 0);
 		});
 
-		cef_ui.add_command("get-property", [](const rapidjson::Value& value, WDocument& response)
+		cef_ui.add_command("get-property", [](const WValue& value, WDocument& response)
 		{
 			response.SetNull();
 
@@ -272,8 +272,8 @@ namespace
 				return;
 			}
 
-			const std::string key{value.GetString(), value.GetStringLength()};
-			const auto property = utils::properties::load(utils::string::convert(key));
+			const std::wstring key{value.GetString(), value.GetStringLength()};
+			const auto property = utils::properties::load(key);
 			if (!property)
 			{
 				return;
@@ -282,7 +282,7 @@ namespace
 			response.SetString(*property, response.GetAllocator());
 		});
 
-		cef_ui.add_command("set-property", [](const rapidjson::Value& value, auto&)
+		cef_ui.add_command("set-property", [](const WValue& value, auto&)
 		{
 			if (!value.IsObject())
 			{
@@ -298,10 +298,10 @@ namespace
 					continue;
 				}
 
-				const std::string key{i->name.GetString(), i->name.GetStringLength()};
-				const std::string val{i->value.GetString(), i->value.GetStringLength()};
+				const std::wstring key{i->name.GetString(), i->name.GetStringLength()};
+				const std::wstring val{i->value.GetString(), i->value.GetStringLength()};
 
-				utils::properties::store(utils::string::convert(key), utils::string::convert(val));
+				utils::properties::store(key, val);
 			}
 		});
 
@@ -311,15 +311,15 @@ namespace
 			response.SetString(channel, response.GetAllocator());
 		});
 
-		cef_ui.add_command("switch-channel", [&cef_ui](const rapidjson::Value& value, auto&)
+		cef_ui.add_command("switch-channel", [&cef_ui](const WValue& value, auto&)
 		{
 			if (!value.IsString())
 			{
 				return;
 			}
 
-			const std::string channel{value.GetString(), value.GetStringLength()};
-			const auto* const command_line = channel == "main" ? "--xlabs-channel-main" : "--xlabs-channel-develop";
+			const std::wstring channel{value.GetString(), value.GetStringLength()};
+			const auto* const command_line = channel == L"main" ? "--xlabs-channel-main" : "--xlabs-channel-develop";
 
 			utils::at_exit([command_line]
 			{
