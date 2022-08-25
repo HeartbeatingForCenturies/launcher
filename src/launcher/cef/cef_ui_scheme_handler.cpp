@@ -469,8 +469,8 @@ namespace cef
 			writer(buffer);
 		response.Accept(writer);
 
-		std::wstring jsonData(buffer.GetString(), buffer.GetLength());
-		const auto raw_buffer = utils::string::convert(jsonData);
+		std::wstring json_data(buffer.GetString(), buffer.GetLength());
+		const auto raw_buffer = utils::string::convert(json_data);
 
 		const auto stream = CefStreamReader::CreateForData(const_cast<char*>(raw_buffer.data()), raw_buffer.size());
 		return new CefStreamResourceHandler("application/json", stream);
