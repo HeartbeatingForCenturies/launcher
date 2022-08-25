@@ -5,6 +5,9 @@
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/encodedstream.h"
 
 #include "io.hpp"
 #include "com.hpp"
@@ -18,9 +21,11 @@ namespace utils::properties
 		typedef rapidjson::GenericValue<rapidjson::UTF16<>> WValue;
 		typedef rapidjson::GenericStringBuffer<rapidjson::UTF16<>> WStringBuffer;
 
-		const std::filesystem::path get_properties_file()
+		typedef rapidjson::EncodedOutputStream<rapidjson::UTF16LE<>, rapidjson::FileWriteStream> OutputStream;
+
+		std::filesystem::path get_properties_file()
 		{
-			static const auto props = get_appdata_path() / "user" / "properties.json";
+			static auto props = get_appdata_path() / "user" / "properties.json";
 			return props;
 		}
 
@@ -29,15 +34,26 @@ namespace utils::properties
 			WDocument default_doc{};
 			default_doc.SetObject();
 
-			std::wstring data;
-			const auto& props = get_properties_file();
-			if (!io::read_file(props, &data))
+			char read_buffer[256]; // Raw buffer for reading
+
+			const std::wstring& props = get_properties_file();
+
+			FILE* fp;
+			auto err = _wfopen_s(&fp, props.data(), L"rb");
+			if (err || !fp)
 			{
 				return default_doc;
 			}
 
+			// This will handle the BOM
+			rapidjson::FileReadStream bis(fp, read_buffer, sizeof(read_buffer));
+			rapidjson::EncodedInputStream<rapidjson::UTF16LE<>, rapidjson::FileReadStream> eis(bis);
+
 			WDocument doc{};
-			const rapidjson::ParseResult result = doc.Parse(data);
+			const rapidjson::ParseResult result = doc.ParseStream<rapidjson::kParseNoFlags, rapidjson::UTF16LE<>>(eis);
+
+			fclose(fp);
+
 			if (!result || !doc.IsObject())
 			{
 				return default_doc;
@@ -48,15 +64,24 @@ namespace utils::properties
 
 		void store_properties(const WDocument& doc)
 		{
-			WStringBuffer buffer{};
-			rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16<>>
-				writer(buffer);
+			char write_buffer[256]; // Raw buffer for writing
+
+			const std::wstring& props = get_properties_file();
+
+			FILE* fp;
+			auto err = _wfopen_s(&fp, props.data(), L"wb");
+			if (err || !fp)
+			{
+				return;
+			}
+
+			rapidjson::FileWriteStream bos(fp, write_buffer, sizeof(write_buffer));
+			OutputStream eos(bos, true); // Write BOM
+
+			rapidjson::Writer<OutputStream, rapidjson::UTF16LE<>, rapidjson::UTF16LE<>> writer(eos);
 			doc.Accept(writer);
 
-			const std::wstring json(buffer.GetString(), buffer.GetLength());
-
-			const auto& props = get_properties_file();
-			io::write_file(props, json);
+			fclose(fp);
 		}
 	}
 
@@ -68,7 +93,7 @@ namespace utils::properties
 			throw std::runtime_error("Failed to read APPDATA path!");
 		}
 
-		auto _ = gsl::finally([&path]()
+		auto _ = gsl::finally([&path]
 		{
 			CoTaskMemFree(path);
 		});
@@ -80,7 +105,7 @@ namespace utils::properties
 	std::unique_lock<named_mutex> lock()
 	{
 		static named_mutex mutex{"xlabs-properties-lock"};
-		std::unique_lock<named_mutex> lock{mutex};
+		std::unique_lock lock{mutex};
 		return lock;
 	}
 

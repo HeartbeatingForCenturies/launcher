@@ -2,7 +2,6 @@
 #include "nt.hpp"
 
 #include <fstream>
-#include <codecvt>
 
 namespace utils::io
 {
@@ -42,29 +41,6 @@ namespace utils::io
 		return false;
 	}
 
-	bool write_file(const std::wstring& file, const std::wstring& data, const bool append)
-	{
-		const auto pos = file.find_last_of(L"/\\");
-		if (pos != std::string::npos)
-		{
-			create_directory(file.substr(0, pos));
-		}
-
-		std::wofstream stream(
-			file, std::wios::binary | std::wofstream::out | (append ? std::wofstream::app : 0));
-		const std::locale loc(std::locale::classic(), new std::codecvt_utf16<wchar_t>);
-		stream.imbue(loc);
-
-		if (stream.is_open())
-		{
-			stream.write(data.data(), static_cast<std::streamsize>(data.size()));
-			stream.close();
-			return true;
-		}
-
-		return false;
-	}
-
 	std::string read_file(const std::wstring& file)
 	{
 		std::string data;
@@ -89,35 +65,6 @@ namespace utils::io
 			if (size > -1)
 			{
 				data->resize(static_cast<uint32_t>(size));
-				stream.read(data->data(), size);
-				stream.close();
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	bool read_file(const std::wstring& file, std::wstring* data)
-	{
-		if (!data) return false;
-		data->clear();
-
-		if (file_exists(file))
-		{
-			std::wifstream stream(file, std::wios::binary);
-			const std::locale loc(std::locale::classic(), new std::codecvt_utf16<wchar_t>);
-			stream.imbue(loc);
-
-			if (!stream.is_open()) return false;
-
-			stream.seekg(0, std::wios::end);
-			const std::streamsize size = stream.tellg();
-			stream.seekg(0, std::wios::beg);
-
-			if (size > -1)
-			{
-				data->resize(static_cast<std::uint32_t>(size));
 				stream.read(data->data(), size);
 				stream.close();
 				return true;

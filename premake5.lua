@@ -248,7 +248,6 @@ flags {"NoIncrementalLink", "NoMinimalRebuild", "MultiProcessorCompile", "No64Bi
 
 filter "platforms:x64"
 	defines {"_WINDOWS", "WIN32"}
-	defines {"_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING"}
 filter {}
 
 filter "configurations:Release"
