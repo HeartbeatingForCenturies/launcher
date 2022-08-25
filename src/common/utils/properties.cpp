@@ -4,7 +4,6 @@
 
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/filewritestream.h"
 #include "rapidjson/encodedstream.h"
@@ -19,9 +18,9 @@ namespace utils::properties
 	{
 		typedef rapidjson::GenericDocument<rapidjson::UTF16<>> WDocument;
 		typedef rapidjson::GenericValue<rapidjson::UTF16<>> WValue;
-		typedef rapidjson::GenericStringBuffer<rapidjson::UTF16<>> WStringBuffer;
 
 		typedef rapidjson::EncodedOutputStream<rapidjson::UTF16LE<>, rapidjson::FileWriteStream> OutputStream;
+		typedef rapidjson::EncodedInputStream<rapidjson::UTF16LE<>, rapidjson::FileReadStream> InputStream;
 
 		std::filesystem::path get_properties_file()
 		{
@@ -47,7 +46,7 @@ namespace utils::properties
 
 			// This will handle the BOM
 			rapidjson::FileReadStream bis(fp, read_buffer, sizeof(read_buffer));
-			rapidjson::EncodedInputStream<rapidjson::UTF16LE<>, rapidjson::FileReadStream> eis(bis);
+			InputStream eis(bis);
 
 			WDocument doc{};
 			const rapidjson::ParseResult result = doc.ParseStream<rapidjson::kParseNoFlags, rapidjson::UTF16LE<>>(eis);
