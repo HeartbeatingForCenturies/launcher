@@ -233,14 +233,14 @@ namespace
 			cef_ui.close_browser();
 		});
 
-		cef_ui.add_command("browse-folder", [](const auto&, rapidjson::Document& response)
+		cef_ui.add_command("browse-folder", [](const auto&, WDocument& response)
 		{
 			response.SetNull();
 
 			std::wstring folder{};
 			if (utils::com::select_folder(folder))
 			{
-				response.SetString(utils::string::convert(folder), response.GetAllocator());
+				response.SetString(folder, response.GetAllocator());
 			}
 		});
 
@@ -263,7 +263,7 @@ namespace
 			PostMessageA(window, WM_DELAYEDDPICHANGE, 0, 0);
 		});
 
-		cef_ui.add_command("get-property", [](const rapidjson::Value& value, rapidjson::Document& response)
+		cef_ui.add_command("get-property", [](const rapidjson::Value& value, WDocument& response)
 		{
 			response.SetNull();
 
@@ -279,7 +279,7 @@ namespace
 				return;
 			}
 
-			response.SetString(utils::string::convert(*property), response.GetAllocator());
+			response.SetString(*property, response.GetAllocator());
 		});
 
 		cef_ui.add_command("set-property", [](const rapidjson::Value& value, auto&)
@@ -305,9 +305,9 @@ namespace
 			}
 		});
 
-		cef_ui.add_command("get-channel", [](auto&, rapidjson::Document& response)
+		cef_ui.add_command("get-channel", [](auto&, WDocument& response)
 		{
-			const std::string channel = updater::is_main_channel() ? "main" : "dev";
+			const std::wstring channel = updater::is_main_channel() ? L"main" : L"dev";
 			response.SetString(channel, response.GetAllocator());
 		});
 
@@ -321,7 +321,7 @@ namespace
 			const std::string channel{value.GetString(), value.GetStringLength()};
 			const auto* const command_line = channel == "main" ? "--xlabs-channel-main" : "--xlabs-channel-develop";
 
-			utils::at_exit([command_line]()
+			utils::at_exit([command_line]
 			{
 				utils::nt::relaunch_self(command_line);
 			});

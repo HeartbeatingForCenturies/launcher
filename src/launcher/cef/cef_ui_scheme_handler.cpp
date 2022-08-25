@@ -3,6 +3,7 @@
 #include "cef/cef_ui_scheme_handler.hpp"
 
 #include <utils/io.hpp>
+#include <utils/string.hpp>
 
 namespace cef
 {
@@ -450,25 +451,26 @@ namespace cef
 		const auto& command = doc["command"];
 		const auto& data = doc["data"];
 
-		rapidjson::Document response{};
+		WDocument response{};
 		response.SetObject();
 
 		if (command.IsString())
 		{
-			std::string command_name{command.GetString(), command.GetStringLength()};
-			auto handler = this->command_handlers_.find(command_name);
+			const std::string command_name{command.GetString(), command.GetStringLength()};
+			const auto handler = this->command_handlers_.find(command_name);
 			if (handler != this->command_handlers_.end())
 			{
 				handler->second(data, response);
 			}
 		}
 
-		rapidjson::StringBuffer buffer{};
-		rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<>>
+		WStringBuffer buffer{};
+		rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16LE<>>
 			writer(buffer);
 		response.Accept(writer);
 
-		json.assign(buffer.GetString(), buffer.GetLength());
+		const auto jsonData = utils::string::convert(std::wstring(buffer.GetString(), buffer.GetLength()));
+		json.assign(jsonData);
 
 		const auto stream = CefStreamReader::CreateForData(json.data(), json.size());
 		return new CefStreamResourceHandler("application/json", stream);
