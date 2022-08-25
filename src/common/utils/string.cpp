@@ -164,8 +164,25 @@ namespace utils::string
 			return str;
 		}
 
-		size_t start_pos = 0;
+		std::size_t start_pos = 0;
 		while ((start_pos = str.find(from, start_pos)) != std::string::npos)
+		{
+			str.replace(start_pos, from.length(), to);
+			start_pos += to.length();
+		}
+
+		return str;
+	}
+
+	std::wstring replace(std::wstring str, const std::wstring& from, const std::wstring& to)
+	{
+		if (from.empty())
+		{
+			return str;
+		}
+
+		std::size_t start_pos = 0;
+		while ((start_pos = str.find(from, start_pos)) != std::wstring::npos)
 		{
 			str.replace(start_pos, from.length(), to);
 			start_pos += to.length();

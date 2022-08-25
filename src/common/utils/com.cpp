@@ -106,8 +106,7 @@ namespace utils::com
 			CoTaskMemFree(raw_path);
 		});
 
-		const std::wstring result_path = raw_path;
-		out_folder = result_path;
+		out_folder = raw_path;
 
 		return true;
 	}

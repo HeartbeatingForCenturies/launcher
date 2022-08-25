@@ -465,14 +465,14 @@ namespace cef
 		}
 
 		WStringBuffer buffer{};
-		rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16LE<>>
+		rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16<>>
 			writer(buffer);
 		response.Accept(writer);
 
-		const auto jsonData = utils::string::convert(std::wstring(buffer.GetString(), buffer.GetLength()));
-		json.assign(jsonData);
+		std::wstring jsonData(buffer.GetString(), buffer.GetLength());
+		const auto raw_buffer = utils::string::convert(jsonData);
 
-		const auto stream = CefStreamReader::CreateForData(json.data(), json.size());
+		const auto stream = CefStreamReader::CreateForData(const_cast<char*>(raw_buffer.data()), raw_buffer.size());
 		return new CefStreamResourceHandler("application/json", stream);
 	}
 }

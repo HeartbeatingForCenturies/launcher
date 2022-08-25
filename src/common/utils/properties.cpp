@@ -14,9 +14,9 @@ namespace utils::properties
 {
 	namespace
 	{
-		typedef rapidjson::GenericDocument<rapidjson::UTF16LE<>> WDocument;
-		typedef rapidjson::GenericValue<rapidjson::UTF16LE<>> WValue;
-		typedef rapidjson::GenericStringBuffer<rapidjson::UTF16LE<>> WStringBuffer;
+		typedef rapidjson::GenericDocument<rapidjson::UTF16<>> WDocument;
+		typedef rapidjson::GenericValue<rapidjson::UTF16<>> WValue;
+		typedef rapidjson::GenericStringBuffer<rapidjson::UTF16<>> WStringBuffer;
 
 		const std::filesystem::path get_properties_file()
 		{
@@ -49,7 +49,7 @@ namespace utils::properties
 		void store_properties(const WDocument& doc)
 		{
 			WStringBuffer buffer{};
-			rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16LE<>>
+			rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16<>>
 				writer(buffer);
 			doc.Accept(writer);
 
