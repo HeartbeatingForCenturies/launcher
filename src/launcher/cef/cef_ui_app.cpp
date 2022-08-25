@@ -21,6 +21,6 @@ namespace cef
 	{
 		command_line->AppendSwitch("enable-experimental-web-platform-features");
 		command_line->AppendSwitch("in-process-gpu");
-		command_line->AppendSwitchWithValue("default-encoding", "utf-16");
+		command_line->AppendSwitchWithValue("default-encoding", "utf-8");
 	}
 }
