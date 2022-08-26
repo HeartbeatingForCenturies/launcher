@@ -125,7 +125,7 @@ namespace utils::nt
 	{
 		if (!this->is_valid()) return {};
 
-		auto path = this->get_path();
+		const auto path = this->get_path();
 		const auto pos = path.generic_wstring().find_last_of(L"/\\");
 		if (pos == std::string::npos) return path.generic_wstring();
 

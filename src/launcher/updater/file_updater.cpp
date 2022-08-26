@@ -121,8 +121,9 @@ namespace updater
 		: listener_(listener)
 		, base_(std::move(base))
 		, process_file_(std::move(process_file))
+		, dead_process_file_(process_file_)
 	{
-		this->dead_process_file_ = this->process_file_ / ".old";
+		this->dead_process_file_.replace_extension(".exe.old");
 		this->delete_old_process_file();
 	}
 
