@@ -139,7 +139,7 @@ namespace utils::nt
 		wchar_t name[MAX_PATH]{};
 		GetModuleFileNameW(this->module_, name, MAX_PATH);
 
-		return name;
+		return {name};
 	}
 
 	std::filesystem::path library::get_folder() const

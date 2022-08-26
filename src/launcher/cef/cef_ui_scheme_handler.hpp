@@ -5,7 +5,7 @@ namespace cef
 	class cef_ui_scheme_handler_factory : public CefSchemeHandlerFactory
 	{
 	public:
-		using command_handler = std::function<void(const rapidjson::Value& request, rapidjson::Document& response)>;
+		using command_handler = std::function<void(const WValue& request, WDocument& response)>;
 		using command_handlers = std::unordered_map<std::string, command_handler>;
 
 		cef_ui_scheme_handler_factory(std::filesystem::path folder, const command_handlers& command_handlers);

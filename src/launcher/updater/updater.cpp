@@ -1,4 +1,4 @@
-#include "std_include.hpp"
+#include <std_include.hpp>
 
 #include "updater.hpp"
 #include "updater_ui.hpp"
@@ -49,13 +49,13 @@ namespace updater
 
 	void update_iw4x()
 	{
-		const auto mw2_install = utils::properties::load("mw2-install");
+		const auto mw2_install = utils::properties::load(L"mw2-install");
 		if (!mw2_install)
 		{
 			return;
 		}
 
-		const auto base = mw2_install.value() + "\\";
+		const auto base = mw2_install.value() + L"\\";
 
 		updater_ui updater_ui{};
 		const file_updater file_updater{updater_ui, base, ""};

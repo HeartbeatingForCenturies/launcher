@@ -1,4 +1,4 @@
-#include "std_include.hpp"
+#include <std_include.hpp>
 
 #include "updater.hpp"
 #include "updater_ui.hpp"
@@ -10,10 +10,7 @@
 #include <utils/logger.hpp>
 #include <utils/compression.hpp>
 
-#include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/writer.h>
-#include <iostream>
 
 #define UPDATE_SERVER "https://master.xlabs.dev/"
 
@@ -28,6 +25,7 @@
 #define IW4X_VERSION_FILE ".version.json"
 #define IW4X_RAWFILES_UPDATE_FILE "release.zip"
 #define IW4X_RAWFILES_UPDATE_URL "https://github.com/XLabsProject/iw4x-rawfiles/releases/latest/download/" IW4X_RAWFILES_UPDATE_FILE
+#define IW4X_RAWFILES_TAGS "https://api.github.com/repos/XLabsProject/iw4x-rawfiles/releases/latest"
 
 namespace updater
 {
@@ -119,7 +117,7 @@ namespace updater
 		}
 	}
 
-	file_updater::file_updater(progress_listener& listener, const std::filesystem::path base, std::filesystem::path process_file)
+	file_updater::file_updater(progress_listener& listener, std::filesystem::path base, std::filesystem::path process_file)
 		: listener_(listener)
 		, base_(std::move(base))
 		, process_file_(std::move(process_file))
@@ -252,7 +250,7 @@ namespace updater
 		{
 			utils::logger::write("Fetching iw4x-rawfiles tag from github...");
 
-			const auto rawfiles_tag = get_release_tag("https://api.github.com/repos/XLabsProject/iw4x-rawfiles/releases/latest");
+			const auto rawfiles_tag = get_release_tag(IW4X_RAWFILES_TAGS);
 			if (rawfiles_tag.has_value())
 			{
 				update_state.rawfile_requires_update = every_update_required || doc["rawfile_version"].GetString() != rawfiles_tag.value();
@@ -329,7 +327,7 @@ namespace updater
 			}
 
 			utils::logger::write("Updating iw4x files");
-			update_files(files_to_update, /*iw4x_file=*/true);
+			update_files(files_to_update, true);
 
 			if (update_state.rawfile_requires_update)
 			{
