@@ -288,7 +288,7 @@ namespace updater
 	{
 		utils::logger::write("Creating iw4x version file in {}: rawfiles are {}", this->base_.string(), rawfile_version);
 
-		const std::filesystem::path iw4x_basegame_directory(this->base_);
+		const auto iw4x_basegame_directory(this->base_);
 		rapidjson::Document doc{};
 		rapidjson::StringBuffer buffer{};
 		rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<>>
