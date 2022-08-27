@@ -4,7 +4,9 @@
 
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
-#include <rapidjson/stringbuffer.h>
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/encodedstream.h"
 
 #include "io.hpp"
 #include "com.hpp"
@@ -14,26 +16,43 @@ namespace utils::properties
 {
 	namespace
 	{
-		const std::filesystem::path get_properties_file()
+		typedef rapidjson::GenericDocument<rapidjson::UTF16LE<>> WDocument;
+		typedef rapidjson::GenericValue<rapidjson::UTF16LE<>> WValue;
+
+		typedef rapidjson::EncodedOutputStream<rapidjson::UTF16LE<>, rapidjson::FileWriteStream> OutputStream;
+		typedef rapidjson::EncodedInputStream<rapidjson::UTF16LE<>, rapidjson::FileReadStream> InputStream;
+
+		std::filesystem::path get_properties_file()
 		{
-			static const auto props = get_appdata_path() / "user/properties.json";
+			static auto props = get_appdata_path() / "user" / "properties.json";
 			return props;
 		}
 
-		rapidjson::Document load_properties()
+		WDocument load_properties()
 		{
-			rapidjson::Document default_doc{};
+			WDocument default_doc{};
 			default_doc.SetObject();
 
-			std::string data{};
-			const auto& props = get_properties_file();
-			if (!io::read_file(props, &data))
+			char read_buffer[256]; // Raw buffer for reading
+
+			const std::wstring& props = get_properties_file();
+
+			FILE* fp;
+			auto err = _wfopen_s(&fp, props.data(), L"rb");
+			if (err || !fp)
 			{
 				return default_doc;
 			}
 
-			rapidjson::Document doc{};
-			const rapidjson::ParseResult result = doc.Parse(data);
+			// This will handle the BOM
+			rapidjson::FileReadStream bis(fp, read_buffer, sizeof(read_buffer));
+			InputStream eis(bis);
+
+			WDocument doc{};
+			const rapidjson::ParseResult result = doc.ParseStream<rapidjson::kParseNoFlags, rapidjson::UTF16LE<>>(eis);
+
+			fclose(fp);
+
 			if (!result || !doc.IsObject())
 			{
 				return default_doc;
@@ -42,17 +61,26 @@ namespace utils::properties
 			return doc;
 		}
 
-		void store_properties(const rapidjson::Document& doc)
+		void store_properties(const WDocument& doc)
 		{
-			rapidjson::StringBuffer buffer{};
-			rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<>>
-				writer(buffer);
+			char write_buffer[256]; // Raw buffer for writing
+
+			const std::wstring& props = get_properties_file();
+
+			FILE* fp;
+			auto err = _wfopen_s(&fp, props.data(), L"wb");
+			if (err || !fp)
+			{
+				return;
+			}
+
+			rapidjson::FileWriteStream bos(fp, write_buffer, sizeof(write_buffer));
+			OutputStream eos(bos, true); // Write BOM
+
+			rapidjson::Writer<OutputStream, rapidjson::UTF16LE<>, rapidjson::UTF16LE<>> writer(eos);
 			doc.Accept(writer);
 
-			const std::string json(buffer.GetString(), buffer.GetLength());
-
-			const auto& props = get_properties_file();
-			io::write_file(props, json);
+			fclose(fp);
 		}
 	}
 
@@ -64,7 +92,7 @@ namespace utils::properties
 			throw std::runtime_error("Failed to read APPDATA path!");
 		}
 
-		auto _ = gsl::finally([&path]()
+		auto _ = gsl::finally([&path]
 		{
 			CoTaskMemFree(path);
 		});
@@ -76,11 +104,11 @@ namespace utils::properties
 	std::unique_lock<named_mutex> lock()
 	{
 		static named_mutex mutex{"xlabs-properties-lock"};
-		std::unique_lock<named_mutex> lock{mutex};
+		std::unique_lock lock{mutex};
 		return lock;
 	}
 
-	std::optional<std::string> load(const std::string& name)
+	std::optional<std::wstring> load(const std::wstring& name)
 	{
 		const auto _ = lock();
 		const auto doc = load_properties();
@@ -96,10 +124,10 @@ namespace utils::properties
 			return {};
 		}
 
-		return {std::string{value.GetString(), value.GetStringLength()}};
+		return {std::wstring{value.GetString()}};
 	}
 
-	void store(const std::string& name, const std::string& value)
+	void store(const std::wstring& name, const std::wstring& value)
 	{
 		const auto _ = lock();
 		auto doc = load_properties();
@@ -109,10 +137,10 @@ namespace utils::properties
 			doc.RemoveMember(name);
 		}
 
-		rapidjson::Value key{};
+		WValue key{};
 		key.SetString(name, doc.GetAllocator());
 
-		rapidjson::Value member{};
+		WValue member{};
 		member.SetString(value, doc.GetAllocator());
 
 		doc.AddMember(key, member, doc.GetAllocator());

@@ -8,7 +8,7 @@ namespace cef
 	class cef_ui
 	{
 	public:
-		using command_handler = std::function<void(const rapidjson::Value& request, rapidjson::Document& response)>;
+		using command_handler = std::function<void(const WValue& request, WDocument& response)>;
 		using command_handlers = std::unordered_map<std::string, command_handler>;
 
 		cef_ui(utils::nt::library process, std::filesystem::path path);

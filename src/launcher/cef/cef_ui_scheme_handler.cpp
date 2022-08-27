@@ -1,8 +1,12 @@
-#include "std_include.hpp"
+#include <std_include.hpp>
 
 #include "cef/cef_ui_scheme_handler.hpp"
 
 #include <utils/io.hpp>
+#include <utils/string.hpp>
+
+#define CEF_COMMAND L"command"
+#define CEF_DATA L"data"
 
 namespace cef
 {
@@ -444,33 +448,36 @@ namespace cef
 		json.resize(element->GetBytesCount());
 		element->GetBytes(json.size(), json.data());
 
-		rapidjson::Document doc{};
-		doc.Parse(json.data(), json.size());
+		WDocument doc{};
+		const auto wide_json = utils::string::convert(json);
+		doc.Parse(wide_json.data(), wide_json.size());
 
-		const auto& command = doc["command"];
-		const auto& data = doc["data"];
+		const auto& command = doc[CEF_COMMAND];
+		const auto& data = doc[CEF_DATA];
 
-		rapidjson::Document response{};
+		WDocument response{};
 		response.SetObject();
 
 		if (command.IsString())
 		{
-			std::string command_name{command.GetString(), command.GetStringLength()};
-			auto handler = this->command_handlers_.find(command_name);
+			const std::wstring wide_command_name{command.GetString()};
+			const auto command_name = utils::string::convert(wide_command_name);
+			const auto handler = this->command_handlers_.find(command_name);
 			if (handler != this->command_handlers_.end())
 			{
 				handler->second(data, response);
 			}
 		}
 
-		rapidjson::StringBuffer buffer{};
-		rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<>>
+		WStringBuffer buffer{};
+		rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16<>>
 			writer(buffer);
 		response.Accept(writer);
 
-		json.assign(buffer.GetString(), buffer.GetLength());
+		std::wstring json_data(buffer.GetString(), buffer.GetLength());
+		const auto raw_buffer = utils::string::convert(json_data);
 
-		const auto stream = CefStreamReader::CreateForData(json.data(), json.size());
+		const auto stream = CefStreamReader::CreateForData(const_cast<char*>(raw_buffer.data()), raw_buffer.size());
 		return new CefStreamResourceHandler("application/json", stream);
 	}
 }
