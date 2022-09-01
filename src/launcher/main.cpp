@@ -362,7 +362,6 @@ int CALLBACK WinMain(const HINSTANCE instance, HINSTANCE, LPSTR, int)
 		if (!utils::flags::has_flag("noupdate"))
 		{
 			updater::run(path);
-			updater::update_iw4x();
 		}
 #endif
 
