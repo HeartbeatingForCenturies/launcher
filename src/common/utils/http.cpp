@@ -77,10 +77,12 @@ namespace utils::http
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
 		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_callback);
 		curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &helper);
-		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
-		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, true);
+		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "xlabs-updater/1.0");
-		curl_easy_setopt(curl, CURLOPT_FAILONERROR, true);
+		curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
 		for (auto i = 0u; i < retries + 1; ++i)
 		{
