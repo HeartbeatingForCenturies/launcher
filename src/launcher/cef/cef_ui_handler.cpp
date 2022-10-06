@@ -291,8 +291,9 @@ namespace cef
 			SetWindowPos(window, nullptr, new_x, new_y, new_width, new_height, SWP_NOZORDER | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
 
 			// Update rounded corners
-			SetWindowRgn(window, CreateRoundRectRgn(0, 0, rect.right - rect.left, rect.bottom - rect.top, 15, 15),
-			             TRUE);
+			const auto round_rect = CreateRoundRectRgn(0, 0, rect.right - rect.left, rect.bottom - rect.top, 15, 15);
+			SetWindowRgn(window, round_rect, TRUE);
+			DeleteObject(round_rect);
 
 			this->update_drag_regions(window);
 			return TRUE;
