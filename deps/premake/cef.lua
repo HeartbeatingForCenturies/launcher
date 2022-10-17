@@ -1,6 +1,6 @@
 cef = {
-	versionShort = "92.0.27",
-	versionLong = "cef_binary_92.0.27+g274abcf+chromium-92.0.4515.159_windows64",
+	versionShort = "106.1.0",
+	versionLong = "cef_binary_106.1.0+g30ad805+chromium-106.0.5249.119_windows64",
 	source = "deps/cef"
 }
 
