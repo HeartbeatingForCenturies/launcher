@@ -26,8 +26,6 @@
 
 #include <optional>
 
-#include <gsl/gsl>
-
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>

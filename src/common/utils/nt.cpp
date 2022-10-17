@@ -5,7 +5,7 @@
 
 #include <utils/string.hpp>
 
-#include <gsl/gsl>
+#include "finally.hpp"
 
 namespace utils::nt
 {
@@ -297,7 +297,7 @@ namespace utils::nt
 		const HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 		if (snapshot == INVALID_HANDLE_VALUE) return 0;
 
-		const auto _ = gsl::finally([&]()
+		const auto _ = utils::finally([&]()
 		{
 			CloseHandle(snapshot);
 		});
@@ -331,7 +331,7 @@ namespace utils::nt
 			return false;
 		}
 
-		const auto _ = gsl::finally([&]()
+		const auto _ = utils::finally([&]()
 		{
 			CloseHandle(process_handle);
 		});

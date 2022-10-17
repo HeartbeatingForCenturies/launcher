@@ -7,6 +7,7 @@
 
 #include <utils/nt.hpp>
 #include <utils/string.hpp>
+#include <utils/finally.hpp>
 
 #include "../updater/updater.hpp"
 
@@ -25,7 +26,7 @@ namespace cef
 
 			const auto old_directory = utils::nt::library::get_dll_directory();
 			utils::nt::library::set_dll_directory(path);
-			auto _ = gsl::finally([&]()
+			auto _ = utils::finally([&]()
 			{
 				utils::nt::library::set_dll_directory(old_directory);
 			});

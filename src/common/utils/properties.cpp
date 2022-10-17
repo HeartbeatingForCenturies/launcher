@@ -1,6 +1,6 @@
 #include "properties.hpp"
 
-#include <gsl/gsl>
+#include "finally.hpp"
 
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
@@ -92,7 +92,7 @@ namespace utils::properties
 			throw std::runtime_error("Failed to read APPDATA path!");
 		}
 
-		auto _ = gsl::finally([&path]
+		auto _ = utils::finally([&path]
 		{
 			CoTaskMemFree(path);
 		});
