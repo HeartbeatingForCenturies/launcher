@@ -98,10 +98,10 @@ namespace cef
 
 		CefWindowInfo window_info;
 		window_info.SetAsPopup(nullptr, "X Labs"s + (updater::is_main_channel() ? "" : " (DEV-BUILD)"));
-		window_info.width = LAUNCHER_WINDOW_WIDTH; //GetSystemMetrics(SM_CXVIRTUALSCREEN);
-		window_info.height = LAUNCHER_WINDOW_HEIGHT; //GetSystemMetrics(SM_CYVIRTUALSCREEN);
-		window_info.x = (GetSystemMetrics(SM_CXSCREEN) - window_info.width) / 2;
-		window_info.y = (GetSystemMetrics(SM_CYSCREEN) - window_info.height) / 2;
+		window_info.bounds.width = LAUNCHER_WINDOW_WIDTH; //GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		window_info.bounds.height = LAUNCHER_WINDOW_HEIGHT; //GetSystemMetrics(SM_CYVIRTUALSCREEN);
+		window_info.bounds.x = (GetSystemMetrics(SM_CXSCREEN) - window_info.bounds.width) / 2;
+		window_info.bounds.y = (GetSystemMetrics(SM_CYSCREEN) - window_info.bounds.height) / 2;
 		window_info.style = WS_POPUP | WS_THICKFRAME | WS_CAPTION;
 
 		if (!this->ui_handler_)
@@ -129,7 +129,7 @@ namespace cef
 	void cef_ui::close_browser()
 	{
 		if (!this->browser_) return;
-		CefPostTask(TID_UI, base::Bind(&cef_ui::invoke_close_browser, this->browser_));
+		CefPostTask(TID_UI, base::BindOnce(&cef_ui::invoke_close_browser, this->browser_));
 		this->browser_ = nullptr;
 	}
 
@@ -156,8 +156,8 @@ namespace cef
 			this->work();
 		}
 
-		this->browser_ = {};
-		this->ui_handler_ = {};
+		this->browser_.reset();
+		this->ui_handler_.reset();
 
 		if (this->initialized_)
 		{

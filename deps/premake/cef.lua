@@ -6,7 +6,7 @@ cef = {
 
 function cef.import()
 	filter {"kind:not StaticLib" }
-	links { "cef", "cef_sandbox", "libcef" }
+	links { "cef", "cef_sandbox", "libcef", "Dbghelp.lib", "Winmm.lib", "Version.lib", "SetupAPI.lib", "Powrprof.lib", "Propsys.lib" }
 	linkoptions { "/DELAYLOAD:libcef.dll" }
 	filter {}
 	cef.includes()
