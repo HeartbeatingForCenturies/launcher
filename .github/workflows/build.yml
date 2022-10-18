@@ -83,7 +83,7 @@ jobs:
         run: echo "XLABS_MASTER_PATH=${{ secrets.XLABS_MASTER_SSH_PATH_DEV }}" >> $GITHUB_ENV
 
       - name: Download Release UI artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: Release UI artifacts
           path: ui
