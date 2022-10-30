@@ -26,8 +26,6 @@
 
 #include <optional>
 
-#include <gsl/gsl>
-
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
@@ -39,6 +37,7 @@ typedef rapidjson::GenericStringBuffer<rapidjson::UTF16LE<>> WStringBuffer;
 #pragma warning(push)
 #pragma warning(disable: 4100)
 
+#include <include/base/cef_callback.h>
 #include <include/base/cef_bind.h>
 #include <include/cef_app.h>
 #include <include/cef_base.h>
@@ -46,7 +45,6 @@ typedef rapidjson::GenericStringBuffer<rapidjson::UTF16LE<>> WStringBuffer;
 #include <include/cef_client.h>
 #include <include/cef_command_line.h>
 #include <include/cef_frame.h>
-#include <include/cef_web_plugin.h>
 #include <include/cef_scheme.h>
 #include <include/cef_parser.h>
 #include <include/wrapper/cef_helpers.h>

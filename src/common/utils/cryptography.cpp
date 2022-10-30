@@ -2,7 +2,7 @@
 #include "cryptography.hpp"
 #include "nt.hpp"
 
-#include <gsl/gsl>
+#include "finally.hpp"
 
 #include <bcrypt.h>
 #pragma comment(lib, "Bcrypt.lib")
@@ -19,7 +19,7 @@ namespace utils::cryptography
 				return {};
 			}
 
-			auto _ = gsl::finally([&algorithm]()
+			auto _ = utils::finally([&algorithm]()
 			{
 				BCryptCloseAlgorithmProvider(algorithm, 0);
 			});

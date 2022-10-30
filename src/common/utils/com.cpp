@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 #include <ShlObj.h>
-#include <gsl/gsl>
+#include "finally.hpp"
 
 
 namespace utils::com
@@ -101,7 +101,7 @@ namespace utils::com
 			throw std::runtime_error("Failed to get path display name");
 		}
 
-		const auto _ = gsl::finally([raw_path]()
+		const auto _ = utils::finally([raw_path]()
 		{
 			CoTaskMemFree(raw_path);
 		});

@@ -260,7 +260,7 @@ filter {}
 
 filter "configurations:Debug"
 	optimize "Debug"
-	defines {"DEBUG", "_DEBUG"}
+	defines {"DEBUG", "_DEBUG", "_ITERATOR_DEBUG_LEVEL=0"}
 filter {}
 
 project "common"
