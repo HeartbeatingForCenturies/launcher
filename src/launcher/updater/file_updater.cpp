@@ -73,9 +73,16 @@ namespace updater
 			return files;
 		}
 
+		std::string get_cache_buster()
+		{
+			return "?" + std::to_string(
+				std::chrono::duration_cast<std::chrono::nanoseconds>(
+					std::chrono::system_clock::now().time_since_epoch()).count());
+		}
+
 		std::vector<file_info> get_file_infos()
 		{
-			const auto json = utils::http::get_data(get_update_file());
+			const auto json = utils::http::get_data(get_update_file() + get_cache_buster());
 			if (!json)
 			{
 				return {};
@@ -117,11 +124,12 @@ namespace updater
 		}
 	}
 
-	file_updater::file_updater(progress_listener& listener, std::filesystem::path base, std::filesystem::path process_file)
+	file_updater::file_updater(progress_listener& listener, std::filesystem::path base,
+	                           std::filesystem::path process_file)
 		: listener_(listener)
-		, base_(std::move(base))
-		, process_file_(std::move(process_file))
-		, dead_process_file_(process_file_)
+		  , base_(std::move(base))
+		  , process_file_(std::move(process_file))
+		  , dead_process_file_(process_file_)
 	{
 		this->dead_process_file_.replace_extension(".exe.old");
 		this->delete_old_process_file();
@@ -145,9 +153,9 @@ namespace updater
 		this->update_files(outdated_files);
 	}
 
-	void file_updater::update_file(const file_info& file, bool iw4x_file) const
+	void file_updater::update_file(const file_info& file, const bool iw4x_file) const
 	{
-		auto url = get_update_folder() + file.name;
+		auto url = get_update_folder() + file.name + "?" + file.hash;
 		utils::logger::write("Updating file {}", url);
 
 		if (iw4x_file)
@@ -238,7 +246,8 @@ namespace updater
 			if (!result || !doc.IsObject())
 			{
 				every_update_required = true;
-				utils::logger::write("Could not load the JSON revision file for iw4x, considering all updates to be necessary");
+				utils::logger::write(
+					"Could not load the JSON revision file for iw4x, considering all updates to be necessary");
 			}
 		}
 		else
@@ -254,11 +263,12 @@ namespace updater
 			const auto rawfiles_tag = get_release_tag(IW4X_RAWFILES_TAGS);
 			if (rawfiles_tag.has_value())
 			{
-				update_state.rawfile_requires_update = every_update_required || doc["rawfile_version"].GetString() != rawfiles_tag.value();
+				update_state.rawfile_requires_update = every_update_required || doc["rawfile_version"].GetString() !=
+					rawfiles_tag.value();
 				update_state.rawfile_latest_tag = rawfiles_tag.value();
 
 				utils::logger::write("Got rawfiles tag {}, Requires updating: {}", rawfiles_tag.value(),
-					update_state.rawfile_requires_update ? "Yes" : "No");
+				                     update_state.rawfile_requires_update ? "Yes" : "No");
 			}
 		}
 
@@ -286,7 +296,8 @@ namespace updater
 
 	void file_updater::create_iw4x_version_file(const std::string& rawfile_version) const
 	{
-		utils::logger::write("Creating iw4x version file in {}: rawfiles are {}", this->base_.string(), rawfile_version);
+		utils::logger::write("Creating iw4x version file in {}: rawfiles are {}", this->base_.string(),
+		                     rawfile_version);
 
 		const auto iw4x_basegame_directory(this->base_);
 		rapidjson::Document doc{};
@@ -310,7 +321,8 @@ namespace updater
 		}
 		else
 		{
-			utils::logger::write("Error while writing file! {}", std::system_category().message(static_cast<int>(::GetLastError())));
+			utils::logger::write("Error while writing file! {}",
+			                     std::system_category().message(static_cast<int>(::GetLastError())));
 		}
 	}
 
@@ -348,7 +360,8 @@ namespace updater
 		if (!utils::io::file_exists(rawfiles_zip))
 		{
 			// The zip was absent when it was expected, should we throw for this?
-			throw std::runtime_error("I'm supposed to deploy rawfiles from " + rawfiles_zip.generic_string() + ", but where is it?");
+			throw std::runtime_error(
+				"I'm supposed to deploy rawfiles from " + rawfiles_zip.generic_string() + ", but where is it?");
 		}
 
 		// the goal is now to unzip rawfiles_zip into base_
@@ -361,11 +374,12 @@ namespace updater
 		}
 		else
 		{
-			throw std::runtime_error("Failed to remove " + rawfiles_zip.string() + ". Error code: " + std::to_string(::GetLastError()));
+			throw std::runtime_error(
+				"Failed to remove " + rawfiles_zip.string() + ". Error code: " + std::to_string(::GetLastError()));
 		}
 	}
 
-	void file_updater::update_files(const std::vector<file_info>& outdated_files, bool iw4x_files) const
+	void file_updater::update_files(const std::vector<file_info>& outdated_files, const bool iw4x_files) const
 	{
 		this->listener_.update_files(outdated_files);
 

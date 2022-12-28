@@ -45,7 +45,7 @@ img {
     display: inline-block;
     min-width: 50px;
     min-height: 25px;
-    box-shadow: 0 9px 19px rgba(0, 0, 0, 0.1), 0 15px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 9px 19px rgba(0, 0, 0, 0.15), 0 15px 12px rgba(0, 0, 0, 0.15);
     background: #222;
 }
 
@@ -63,6 +63,7 @@ img.container {
 
 .a.card:hover {
     box-shadow: 0 2px 19px rgba(0, 17, 255, 0), 0 11px 40px rgba(51, 146, 255, 0);
+    cursor: pointer;
 }
 
 .card>.title {
@@ -129,6 +130,10 @@ img.container {
     height: 7vw;
     transition: box-shadow 0.1s linear;
     box-shadow: 0 9px 19px rgba(0, 0, 0, 0.2), 0 15px 12px rgba(0, 0, 0, 0.2);
+}
+
+#navigation>.element:hover {
+    cursor: pointer;
 }
 
 #navigation>.element:first-of-type {
@@ -303,6 +308,7 @@ input[type="radio"] {
     position: relative;
     margin: 5px;
     margin-right: 7px;
+    cursor: pointer;
 }
 
 input[type="radio"]::before {

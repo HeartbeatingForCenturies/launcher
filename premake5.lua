@@ -72,11 +72,6 @@ newoption {
 	value = "PATH"
 }
 
-newoption {
-	trigger = "ci-build",
-	description = "Enable CI builds of the client."
-}
-
 newaction {
 	trigger = "version",
 	description = "Returns the version string for the current commit of the source code.",
@@ -240,7 +235,7 @@ editandcontinue "Off"
 warnings "Extra"
 characterset "ASCII"
 
-if _OPTIONS["ci-build"] then
+if os.getenv("CI") then
 	defines {"CI_BUILD"}
 end
 
@@ -253,7 +248,7 @@ filter {}
 filter "configurations:Release"
 	optimize "Full"
 	buildoptions {"/GL"}
-	linkoptions { "/IGNORE:4702", "/LTCG" }
+	linkoptions {"/IGNORE:4702", "/LTCG"}
 	defines {"NDEBUG"}
 	flags {"FatalCompileWarnings"}
 filter {}
