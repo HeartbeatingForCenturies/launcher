@@ -41,9 +41,9 @@ namespace utils::logger
 	}
 
 #ifdef _DEBUG
-	void log_format(const std::source_location& location, std::string_view fmt, std::format_args&& args)
+	void log_format(const std::source_location& location, const std::string_view& fmt, std::format_args&& args)
 #else
-	void log_format(std::string_view fmt, std::format_args&& args)
+	void log_format(const std::string_view& fmt, std::format_args&& args)
 #endif
 	{
 #ifdef _DEBUG
