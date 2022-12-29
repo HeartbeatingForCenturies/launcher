@@ -12,7 +12,7 @@
 
 #include <rapidjson/writer.h>
 
-#define UPDATE_SERVER "https://master.xlabs.dev/"
+#define UPDATE_SERVER "https://updater.xlabs.dev/"
 
 #define UPDATE_FILE_MAIN UPDATE_SERVER "files.json"
 #define UPDATE_FOLDER_MAIN UPDATE_SERVER "data/"
