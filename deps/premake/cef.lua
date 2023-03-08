@@ -1,5 +1,5 @@
 cef = {
-	versionShort = "106.1.0",
+	versionShort = "110.0.32",
 	versionLong = "cef_binary_110.0.32+g291f1df+chromium-110.0.5481.180_windows64",
 	source = "deps/cef"
 }
