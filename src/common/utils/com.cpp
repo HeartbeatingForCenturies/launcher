@@ -1,5 +1,6 @@
 #include "com.hpp"
 #include "nt.hpp"
+#include "string.hpp"
 
 #include <stdexcept>
 
@@ -29,7 +30,7 @@ namespace utils::com
 		} __;
 	}
 
-	bool select_folder(std::wstring& out_folder, const std::wstring& title, const std::wstring& selected_folder)
+	bool select_folder(std::string& out_folder, const std::string& title, const std::string& selected_folder)
 	{
 		CComPtr<IFileOpenDialog> file_dialog{};
 		if (FAILED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&file_dialog))))
@@ -48,7 +49,8 @@ namespace utils::com
 			throw std::runtime_error("Failed to set options");
 		}
 
-		if (FAILED(file_dialog->SetTitle(title.data())))
+		auto wide_title = std::wstring{ title.begin(), title.end() };
+		if (FAILED(file_dialog->SetTitle(wide_title.data())))
 		{
 			throw std::runtime_error("Failed to set title");
 		}
@@ -57,7 +59,7 @@ namespace utils::com
 		{
 			file_dialog->ClearClientData();
 
-			std::wstring wide_selected_folder = selected_folder;
+			auto wide_selected_folder = std::wstring{ selected_folder.begin(), selected_folder.end() };
 			for (auto& chr : wide_selected_folder)
 			{
 				if (chr == L'/')
@@ -101,12 +103,13 @@ namespace utils::com
 			throw std::runtime_error("Failed to get path display name");
 		}
 
-		const auto _ = utils::finally([raw_path]()
+		const auto _ = finally([&raw_path]
 		{
 			CoTaskMemFree(raw_path);
 		});
 
-		out_folder = raw_path;
+		const std::wstring result_path = raw_path;
+		out_folder = string::convert(result_path);
 
 		return true;
 	}

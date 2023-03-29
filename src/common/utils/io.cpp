@@ -15,21 +15,20 @@ namespace utils::io
 		return MoveFileW(src.wstring().data(), target.wstring().data()) == TRUE;
 	}
 
-	bool file_exists(const std::wstring& file)
+	bool file_exists(const std::string& file)
 	{
 		return std::ifstream(file).good();
 	}
 
-	bool write_file(const std::wstring& file, const std::string& data, const bool append)
+	bool write_file(const std::string& file, const std::string& data, const bool append)
 	{
-		const auto pos = file.find_last_of(L"/\\");
+		const auto pos = file.find_last_of("/\\");
 		if (pos != std::string::npos)
 		{
 			create_directory(file.substr(0, pos));
 		}
 
-		std::ofstream stream(
-			file, std::ios::binary | std::ofstream::out | (append ? std::ofstream::app : 0));
+		std::ofstream stream(file, std::ios::binary | std::ofstream::out | (append ? std::ofstream::app : 0));
 
 		if (stream.is_open())
 		{
@@ -41,14 +40,14 @@ namespace utils::io
 		return false;
 	}
 
-	std::string read_file(const std::wstring& file)
+	std::string read_file(const std::string& file)
 	{
 		std::string data;
 		read_file(file, &data);
 		return data;
 	}
 
-	bool read_file(const std::wstring& file, std::string* data)
+	bool read_file(const std::string& file, std::string* data)
 	{
 		if (!data) return false;
 		data->clear();
@@ -64,7 +63,7 @@ namespace utils::io
 
 			if (size > -1)
 			{
-				data->resize(static_cast<uint32_t>(size));
+				data->resize(static_cast<std::string::size_type>(size));
 				stream.read(data->data(), size);
 				stream.close();
 				return true;
@@ -74,7 +73,7 @@ namespace utils::io
 		return false;
 	}
 
-	std::size_t file_size(const std::wstring& file)
+	std::size_t file_size(const std::string& file)
 	{
 		if (file_exists(file))
 		{
@@ -105,22 +104,22 @@ namespace utils::io
 		return std::filesystem::is_empty(directory);
 	}
 
-	std::vector<std::wstring> list_files(const std::filesystem::path& directory, const bool recursive)
+	std::vector<std::string> list_files(const std::filesystem::path& directory, const bool recursive)
 	{
-		std::vector<std::wstring> files;
+		std::vector<std::string> files;
 
 		if (recursive)
 		{
 			for (auto& file : std::filesystem::recursive_directory_iterator(directory))
 			{
-				files.push_back(file.path().generic_wstring());
+				files.push_back(file.path().string());
 			}
 		}
 		else
 		{
 			for (auto& file : std::filesystem::directory_iterator(directory))
 			{
-				files.push_back(file.path().generic_wstring());
+				files.push_back(file.path().string());
 			}
 		}
 

@@ -5,8 +5,8 @@
 #include <utils/io.hpp>
 #include <utils/string.hpp>
 
-#define CEF_COMMAND L"command"
-#define CEF_DATA L"data"
+#define CEF_COMMAND "command"
+#define CEF_DATA "data"
 
 namespace cef
 {
@@ -420,7 +420,7 @@ namespace cef
 
 		const auto file = this->folder_ / path;
 		std::string content;
-		if (utils::io::read_file(file, &content))
+		if (utils::io::read_file(file.string(), &content))
 		{
 			const auto& mime_type = get_mime_type(file);
 			const auto stream = CefStreamReader::CreateForData(content.data(), content.size());
@@ -448,20 +448,18 @@ namespace cef
 		json.resize(element->GetBytesCount());
 		element->GetBytes(json.size(), json.data());
 
-		WDocument doc{};
-		const auto wide_json = utils::string::convert(json);
-		doc.Parse(wide_json.data(), wide_json.size());
+		rapidjson::Document doc{};
+		doc.Parse(json.data(), json.size());
 
 		const auto& command = doc[CEF_COMMAND];
 		const auto& data = doc[CEF_DATA];
 
-		WDocument response{};
+		rapidjson::Document response{};
 		response.SetObject();
 
 		if (command.IsString())
 		{
-			const std::wstring wide_command_name{command.GetString()};
-			const auto command_name = utils::string::convert(wide_command_name);
+			auto command_name = std::string{ command.GetString(), command.GetStringLength() };
 			const auto handler = this->command_handlers_.find(command_name);
 			if (handler != this->command_handlers_.end())
 			{
@@ -469,15 +467,14 @@ namespace cef
 			}
 		}
 
-		WStringBuffer buffer{};
-		rapidjson::Writer<WStringBuffer, WDocument::EncodingType, rapidjson::UTF16<>>
+		rapidjson::StringBuffer buffer{};
+		rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<>>
 			writer(buffer);
 		response.Accept(writer);
 
-		std::wstring json_data(buffer.GetString(), buffer.GetLength());
-		const auto raw_buffer = utils::string::convert(json_data);
+		json.assign(buffer.GetString(), buffer.GetLength());
 
-		const auto stream = CefStreamReader::CreateForData(const_cast<char*>(raw_buffer.data()), raw_buffer.size());
+		const auto stream = CefStreamReader::CreateForData(json.data(), json.size());
 		return new CefStreamResourceHandler("application/json", stream);
 	}
 }
