@@ -16,7 +16,7 @@ namespace utils::nt
 
 	library library::load(const std::filesystem::path& path)
 	{
-		return library::load(path.generic_string());
+		return load(path.generic_string());
 	}
 
 	library library::get_by_address(void* address)
@@ -121,15 +121,15 @@ namespace utils::nt
 		return this->module_ != nullptr && this->get_dos_header()->e_magic == IMAGE_DOS_SIGNATURE;
 	}
 
-	std::wstring library::get_name() const
+	std::string library::get_name() const
 	{
 		if (!this->is_valid()) return {};
 
 		const auto path = this->get_path();
-		const auto pos = path.generic_wstring().find_last_of(L"/\\");
-		if (pos == std::string::npos) return path.generic_wstring();
+		const auto pos = path.generic_string().find_last_of("/\\");
+		if (pos == std::string::npos) return path.generic_string();
 
-		return path.generic_wstring().substr(pos + 1);
+		return path.generic_string().substr(pos + 1);
 	}
 
 	std::filesystem::path library::get_path() const
@@ -139,7 +139,7 @@ namespace utils::nt
 		wchar_t name[MAX_PATH]{};
 		GetModuleFileNameW(this->module_, name, MAX_PATH);
 
-		return {name};
+		return std::filesystem::path{ name };
 	}
 
 	std::filesystem::path library::get_folder() const

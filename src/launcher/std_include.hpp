@@ -12,27 +12,25 @@
 #include <dwmapi.h>
 #include <ShellScalingApi.h>
 
-#include <string>
-#include <mutex>
-#include <vector>
-#include <functional>
-#include <fstream>
-#include <sstream>
-#include <regex>
 #include <atomic>
-#include <set>
-#include <unordered_set>
+#include <cstring>
 #include <filesystem>
+#include <format>
+#include <fstream>
+#include <functional>
+#include <mutex>
+#include <regex>
+#include <set>
+#include <sstream>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 #include <optional>
 
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
-
-typedef rapidjson::GenericDocument<rapidjson::UTF16LE<>> WDocument;
-typedef rapidjson::GenericValue<rapidjson::UTF16LE<>> WValue;
-typedef rapidjson::GenericStringBuffer<rapidjson::UTF16LE<>> WStringBuffer;
 
 #pragma warning(push)
 #pragma warning(disable: 4100)

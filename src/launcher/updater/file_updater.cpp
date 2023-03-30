@@ -185,7 +185,7 @@ namespace updater
 
 		utils::logger::write("Writing file to {} ", out_file.string());
 
-		if (!utils::io::write_file(out_file, *data, false))
+		if (!utils::io::write_file(out_file.string(), *data, false))
 		{
 			throw std::runtime_error("Failed to write: " + file.name);
 		}
@@ -240,7 +240,7 @@ namespace updater
 		std::string data{};
 		rapidjson::Document doc{};
 
-		if (utils::io::read_file(revision_file_path, &data))
+		if (utils::io::read_file(revision_file_path.string(), &data))
 		{
 			const rapidjson::ParseResult result = doc.Parse(data);
 			if (!result || !doc.IsObject())
@@ -315,7 +315,7 @@ namespace updater
 
 		const auto revision_file_path = iw4x_basegame_directory / IW4X_VERSION_FILE;
 
-		if (utils::io::write_file(revision_file_path, json))
+		if (utils::io::write_file(revision_file_path.string(), json))
 		{
 			utils::logger::write("File {} written successfully!", revision_file_path.string());
 		}
@@ -357,7 +357,7 @@ namespace updater
 	{
 		const auto rawfiles_zip = base_ / IW4X_RAWFILES_UPDATE_FILE;
 
-		if (!utils::io::file_exists(rawfiles_zip))
+		if (!utils::io::file_exists(rawfiles_zip.string()))
 		{
 			// The zip was absent when it was expected, should we throw for this?
 			throw std::runtime_error(
@@ -455,7 +455,7 @@ namespace updater
 
 		std::string data{};
 		const auto drive_name = this->get_drive_filename(file);
-		if (!utils::io::read_file(drive_name, &data))
+		if (!utils::io::read_file(drive_name.string(), &data))
 		{
 			return true;
 		}
@@ -495,7 +495,7 @@ namespace updater
 		for (auto i = 0; i < 4; ++i)
 		{
 			utils::io::remove_file(this->dead_process_file_);
-			if (!utils::io::file_exists(this->dead_process_file_))
+			if (!utils::io::file_exists(this->dead_process_file_.string()))
 			{
 				break;
 			}

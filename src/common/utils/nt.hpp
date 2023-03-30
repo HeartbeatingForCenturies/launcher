@@ -44,7 +44,7 @@ namespace utils::nt
 		[[nodiscard]] size_t get_relative_entry_point() const;
 
 		[[nodiscard]] bool is_valid() const;
-		[[nodiscard]] std::wstring get_name() const;
+		[[nodiscard]] std::string get_name() const;
 		[[nodiscard]] std::filesystem::path get_path() const;
 		[[nodiscard]] std::filesystem::path get_folder() const;
 		[[nodiscard]] std::uint8_t* get_ptr() const;
