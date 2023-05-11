@@ -161,7 +161,7 @@ namespace updater
 		if (iw4x_file)
 		{
 			url = file.name;
-			utils::logger::write("This is an iw4x file, the url has been changed to {} instead", url);
+			utils::logger::write("This is an iw4x file, the url has been swapped to {}", url);
 		}
 
 		const auto data = utils::http::get_data(url, {}, [&](const size_t progress)
@@ -183,10 +183,12 @@ namespace updater
 			out_file = this->base_ / std::filesystem::path(file.name).filename().string();
 		}
 
-		utils::logger::write("Writing file to {} ", out_file.string());
+		utils::logger::write("Writing file to {}", out_file.string());
 
 		if (!utils::io::write_file(out_file.string(), *data, false))
 		{
+			utils::logger::write("Failed to write {}. Error code: ", file.name,
+			                     std::system_category().message(static_cast<int>(::GetLastError())));
 			throw std::runtime_error("Failed to write: " + file.name);
 		}
 
