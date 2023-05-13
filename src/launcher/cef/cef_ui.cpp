@@ -144,7 +144,6 @@ namespace cef
 		: process_(std::move(process)), path_(std::move(path))
 	{
 		delay_load_cef(this->path_ / "data" / "cef" / CONFIG_NAME);
-		CefEnableHighDPISupport();
 	}
 
 	cef_ui::~cef_ui()
